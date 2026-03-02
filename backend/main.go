@@ -16,8 +16,6 @@ import (
 	"strings"
 	"sync"
 	"time"
-
-	"github.com/joho/godotenv"
 )
 
 //////////////////////////////////////////////////////////
@@ -62,7 +60,7 @@ type ChartRequest struct {
 // ////////////////////////////////////////////////////////
 func main() {
 
-	godotenv.Load()
+	// godotenv.Load()
 
 	log.Println("Loading Master Contract...")
 	err := loadMasterContract()
