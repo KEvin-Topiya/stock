@@ -34,7 +34,7 @@ export function Header({
   setLoading(true);
 
   try {
-    const res = await fetch(`http://localhost:8080/api/search?q=${encodeURIComponent(q.trim())}`);
+    const res = await fetch(`https://stock.kavyta.com/api/search?q=${encodeURIComponent(q.trim())}`);
 
     if (!res.ok) {
       throw new Error(await res.text());

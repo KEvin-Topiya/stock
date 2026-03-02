@@ -48,7 +48,7 @@ export function Dashboard() {
     async function loadDefaultChart() {
       setLoadingChart(true);
       try {
-        const res = await fetch('http://localhost:8080/api/chart', {
+        const res = await fetch('https://stock.kavyta.com/api/chart', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -83,7 +83,7 @@ const handleStockSelect = useCallback(async (stock) => {
 
   setLoadingChart(true);
   try {
-    const res = await fetch('http://localhost:8080/api/chart', {
+    const res = await fetch('https://stock.kavyta.com/api/chart', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
      body: JSON.stringify({

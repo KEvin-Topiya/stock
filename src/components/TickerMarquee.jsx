@@ -94,7 +94,7 @@ export function TickerMarquee() {
     try {
       setLoading(true);
 
-      const res = await fetch('http://localhost:8080/api/gainers');
+      const res = await fetch('https://stock.kavyta.com/api/gainers');
 
       if (!res.ok) {
         const text = await res.text();
