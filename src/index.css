@@ -1,0 +1,94 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap');
+
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+:root {
+  --bg: #FAFAF7;
+  --card: #FFFFFF;
+  --border: #E5E0D8;
+  --text: #1A1A1A;
+  --text-secondary: #4B5563;
+  --text-muted: #6B7280;
+  --gold: #D97706;
+  --gold-hover: #B45309;
+}
+.dark {
+  --bg: #1A1A1A;
+  --card: #242424;
+  --border: #2E2E2E;
+  --text: #F5F0E8;
+  --text-secondary: #D1C9BC;
+  --text-muted: #9CA3AF;
+  --gold: #F59E0B;
+  --gold-hover: #D97706;
+}
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', system-ui, sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+/* Gainers marquee - scrolls left */
+@keyframes ticker-gainers {
+  from { transform: translateX(0); }
+  to { transform: translateX(-33.333%); }
+}
+/* Losers marquee - scrolls left slightly faster */
+@keyframes ticker-losers {
+  from { transform: translateX(0); }
+  to { transform: translateX(-33.333%); }
+}
+.ticker-track-gainers {
+  animation: ticker-gainers 40s linear infinite;
+  display: flex;
+  width: max-content;
+}
+.ticker-track-losers {
+  animation: ticker-losers 45s linear infinite;
+  display: flex;
+  width: max-content;
+}
+.ticker-track-gainers:hover,
+.ticker-track-losers:hover {
+  animation-play-state: paused;
+}
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: var(--card);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gold);
+}
+/* Tabular numbers for financial data */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+/* Gold gradient text */
+.gold-gradient-text {
+  background: linear-gradient(135deg, #F59E0B, #D97706);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+/* Card base */
+.market-card {
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+/* Pulse animation for AI button */
+@keyframes pulseGold {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+  50% { box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); }
+}
