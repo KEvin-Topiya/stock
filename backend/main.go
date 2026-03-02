@@ -650,7 +650,7 @@ func login() (string, error) {
 	json.Unmarshal(body, &result)
 
 	data := result["data"].(map[string]interface{})
-	fmt.Print(data["jwtToken"])
+	// fmt.Print(data["jwtToken"])
 	return data["jwtToken"].(string), nil
 }
 
