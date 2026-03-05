@@ -8,8 +8,10 @@ import (
 	"encoding/binary"
 	"encoding/json"
 	"fmt"
+	"html"
 	"io"
 	"log"
+	"math/rand"
 	"net"
 	"net/http"
 	"os"
@@ -58,6 +60,204 @@ type ChartRequest struct {
 
 // ////////////////////////////////////////////////////////
 // ////////////////////////////////////////////////////////
+
+var call int = 0
+
+func startBackgroundJobs() {
+	rand.Seed(time.Now().UnixNano())
+
+	// task1: run immediately then every 12 hours
+	go func() {
+		scra()
+		ticker := time.NewTicker(12 * time.Hour)
+		for range ticker.C {
+			scra()
+		}
+	}()
+
+	// task2: run randomly between 2–5 minutes
+	go func() {
+		for {
+			gml()
+			wait := time.Duration(2+rand.Intn(4)) * time.Minute
+			time.Sleep(wait)
+		}
+	}()
+}
+func scra() {
+
+	err := fetchAndStore(
+		os.Getenv("u1"),
+		"ipos.json",
+	)
+
+	if err != nil {
+		fmt.Println("scrap error:", err)
+	}
+}
+func gml() {
+
+	err := fetchAndStoree(
+		os.Getenv("u2"),
+		"gmp.json",
+	)
+
+	if err != nil {
+		fmt.Println("scrap error:", err)
+	}
+}
+func stripHTML(input string) string {
+	// Only remove HTML tags, keep text as is
+	var output strings.Builder
+	inTag := false
+	for _, r := range input {
+		switch r {
+		case '<':
+			inTag = true
+		case '>':
+			inTag = false
+		default:
+			if !inTag {
+				output.WriteRune(r)
+			}
+		}
+	}
+	return strings.TrimSpace(html.UnescapeString(output.String()))
+}
+
+func fetchAndStoree(apiURL string, fileName string) error {
+	resp, err := http.Get(apiURL)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+
+	// Optional: parse JSON and only clean HTML-containing fields
+	var apiResp map[string]interface{}
+	if err := json.Unmarshal(data, &apiResp); err != nil {
+		return err
+	}
+
+	// If reportTableData exists, strip HTML from relevant fields
+	if items, ok := apiResp["reportTableData"].([]interface{}); ok {
+		for _, item := range items {
+			if m, ok := item.(map[string]interface{}); ok {
+				for _, field := range []string{"Name", "GMP", "Rating", "Updated-On", "Anchor"} {
+					if val, exists := m[field]; exists {
+						if s, ok := val.(string); ok {
+							m[field] = stripHTML(s)
+						}
+					}
+				}
+			}
+		}
+	}
+
+	// Save cleaned JSON
+	cleanedData, _ := json.MarshalIndent(apiResp, "", "  ")
+	if err := os.WriteFile(fileName, cleanedData, 0644); err != nil {
+		return err
+	}
+
+	fmt.Println("Saved cleaned data to:", fileName)
+	return nil
+}
+func fetchAndStore(apiURL string, fileName string) error {
+
+	resp, err := http.Get(apiURL)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+
+	err = os.WriteFile(fileName, data, 0644)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("saved:", fileName)
+	return nil
+}
+
+func ipoList(w http.ResponseWriter, r *http.Request) {
+
+	// ✅ CORS headers
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+	// ✅ Handle preflight request
+	if r.Method == http.MethodOptions {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	// ✅ Allow GET or POST
+	if r.Method != http.MethodPost && r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	file, err := os.ReadFile("ipos.json")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	call++
+	fmt.Println("API calls:", call)
+
+	// ✅ Correct content type
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(file)
+}
+
+func gmList(w http.ResponseWriter, r *http.Request) {
+
+	// ✅ CORS headers
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+	// ✅ Handle preflight request
+	if r.Method == http.MethodOptions {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	// ✅ Allow GET or POST
+	if r.Method != http.MethodPost && r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	file, err := os.ReadFile("gmp.json")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	call++
+	fmt.Println("API calls:", call)
+
+	// ✅ Correct content type
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(file)
+}
+
+// ///////
 func main() {
 
 	// godotenv.Load()
@@ -67,7 +267,10 @@ func main() {
 	if err != nil {
 		log.Fatal("Master contract error:", err)
 	}
+	startBackgroundJobs()
 
+	http.HandleFunc("/ipo", ipoList)
+	http.HandleFunc("/GM", gmList)
 	log.Println("Logging in at startup...")
 	token, err := login()
 	if err != nil {
@@ -729,3 +932,6 @@ func getMacAddress() string {
 	}
 	return ""
 }
+
+// //////////
+// //Scrp/////////
