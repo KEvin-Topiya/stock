@@ -94,7 +94,7 @@ export function TickerMarquee() {
     try {
       setLoading(true);
 
-      const res = await fetch('https://stock.kavyta.com/api/gainers');
+      const res = await fetch('https://b.jpassociate.co.in/api/gainers');
 
       if (!res.ok) {
         const text = await res.text();
@@ -102,7 +102,6 @@ export function TickerMarquee() {
       }
 
       const data = await res.json();
-      console.log(data)
       const formatData = (list) =>
         (list || []).slice(0, 12).map((d) => ({
           name: d.companyName ?? d.tradingSymbol ?? d.name,
