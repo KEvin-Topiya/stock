@@ -1,187 +1,128 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Stock & IPO Dashboard</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f5f5f5;
-      margin: 0;
-      padding: 20px;
-    }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Stock & IPO Marquee</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #f5f5f5;
+    margin: 0;
+    padding: 20px;
+  }
 
-    /* ===== STOCK TICKER ===== */
-    .ticker-wrapper {
-      width: 100%;
-      overflow: hidden;
-      background: #111;
-      color: white;
-      padding: 10px 0;
-      border-top: 2px solid #333;
-      border-bottom: 2px solid #333;
-      margin-bottom: 30px;
-    }
+  /* ===== STOCK TICKER ===== */
+  .ticker-wrapper, .ipo-ticker-wrapper {
+    width: 100%;
+    overflow: hidden;
+    background: #111;
+    color: white;
+    padding: 10px 0;
+    border-top: 2px solid #333;
+    border-bottom: 2px solid #333;
+    margin-bottom: 20px;
+  }
 
-    .ticker {
-      display: inline-block;
-      white-space: nowrap;
-      animation: scrollTicker 40s linear infinite;
-      font-size: 14px;
-    }
+  .ticker, .ipo-ticker {
+    display: inline-block;
+    white-space: nowrap;
+    animation: scrollTicker 40s linear infinite;
+    font-size: 14px;
+  }
 
-    .green {
-      color: #00ff9c;
-    }
+  .green { color: #00ff9c; }
+  .red { color: #ff4d4d; }
 
-    .red {
-      color: #ff4d4d;
-    }
+  @keyframes scrollTicker {
+    from { transform: translateX(0); }
+    to { transform: translateX(-100%); }
+  }
 
-    @keyframes scrollTicker {
-      from { transform: translateX(0); }
-      to { transform: translateX(-100%); }
-    }
-
-    /* ===== IPO TABLE ===== */
-    .ipo-widget {
-      max-width: 1000px;
-      margin: 0 auto;
-      background: #fff;
-      border-radius: 8px;
-      padding: 15px;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
-    }
-
-    .ipo-widget h2 {
-      text-align: center;
-      margin-bottom: 15px;
-      font-size: 22px;
-      color: #0f172a;
-    }
-
-    .ipo-table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    .ipo-table th, .ipo-table td {
-      padding: 10px 8px;
-      border: 1px solid #cbd5e1;
-      text-align: left;
-      font-size: 14px;
-    }
-
-    .ipo-table th {
-      background: #0f172a;
-      color: white;
-    }
-
-    .ipo-table tr:nth-child(even) {
-      background: #e2e8f0;
-    }
-
-    .ipo-table tr:hover {
-      background: #cbd5e1;
-    }
-  </style>
+  /* ===== IPO MARQUEE CARD ===== */
+  .ipo-card {
+    display: inline-block;
+    margin-right: 50px;
+    color: #ffd700;
+    font-weight: bold;
+  }
+</style>
 </head>
 <body>
 
   <!-- STOCK TICKER -->
   <div class="ticker-wrapper">
-    <div class="ticker" id="stockTicker">Loading market data...</div>
+    <div class="ticker" id="stockTicker">Loading NIFTY market data...</div>
   </div>
 
-  <!-- IPO TABLE -->
-  <div class="ipo-widget">
-    <h2>Upcoming IPOs</h2>
-    <table class="ipo-table" id="ipoTable">
-      <thead>
-        <tr>
-          <th>Company</th>
-          <th>Open Date</th>
-          <th>Close Date</th>
-          <th>Price Band</th>
-          <th>Lot Size</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr><td colspan="5">Loading IPO data...</td></tr>
-      </tbody>
-    </table>
+  <!-- IPO TICKER -->
+  <div class="ipo-ticker-wrapper">
+    <div class="ipo-ticker" id="ipoTicker">Loading IPO data...</div>
   </div>
 
-  <script>
-    // ========== STOCK TICKER ==========
-    async function loadStocks() {
-      const url = "https://portal.tradebrains.in/api/index/constitients/NIFTY/?ascending=false&by=per_change&format=json&page=1&per_page=25";
-      try {
-        const response = await fetch(url);
-        const data = await response.json();
-        const stocks = data.results || [];
-        const ticker = document.getElementById("stockTicker");
+<script>
+  // ===== STOCK TICKER =====
+  async function loadStocks() {
+    const url = "https://portal.tradebrains.in/api/index/constitients/NIFTY/?ascending=false&by=per_change&format=json&page=1&per_page=25";
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+      const stocks = data.results || [];
+      const ticker = document.getElementById("stockTicker");
 
-        if (stocks.length === 0) {
-          ticker.innerText = "No stock data available";
-          return;
-        }
-
-        ticker.innerHTML = stocks.map(s => {
-          const colorClass = s.per_change >= 0 ? "green" : "red";
-          return `<span style="margin-right:40px;" class="${colorClass}">${s.symbol} ${s.per_change}%</span>`;
-        }).join('');
-
-      } catch (err) {
-        console.error("Stock API error:", err);
-        document.getElementById("stockTicker").innerText = "Error loading market data";
+      if (stocks.length === 0) {
+        ticker.innerText = "No stock data available";
+        return;
       }
 
-      // Random refresh 2–10 minutes
-      const min = 2 * 60 * 1000;
-      const max = 10 * 60 * 1000;
-      const randomDelay = Math.floor(Math.random() * (max - min)) + min;
-      setTimeout(loadStocks, randomDelay);
+      ticker.innerHTML = stocks.map(s => {
+        const colorClass = s.per_change >= 0 ? "green" : "red";
+        return `<span class="${colorClass}" style="margin-right:40px;">${s.symbol} ${s.per_change}%</span>`;
+      }).join('');
+
+    } catch(err) {
+      console.error("Stock API error:", err);
+      document.getElementById("stockTicker").innerText = "Error loading market data";
     }
-    loadStocks();
 
-    // ========== IPO TABLE ==========
-    async function loadIPO() {
-      const url = "https://b.jpassociate.co.in/ipo";
-      try {
-        const response = await fetch(url);
-        const data = await response.json();
-        const ipoList = data.result || [];
-        const tbody = document.querySelector("#ipoTable tbody");
-        tbody.innerHTML = "";
+    // Random refresh 2–10 minutes
+    const min = 2*60*1000;
+    const max = 10*60*1000;
+    const randomDelay = Math.floor(Math.random()*(max-min))+min;
+    setTimeout(loadStocks, randomDelay);
+  }
+  loadStocks();
 
-        if (ipoList.length === 0) {
-          tbody.innerHTML = "<tr><td colspan='5'>No IPO data available</td></tr>";
-          return;
-        }
+  // ===== IPO MARQUEE =====
+  async function loadIPO() {
+    const url = "https://b.jpassociate.co.in/ipo";
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+      const ipoList = data?.ipoDropDownList || [];
+      const ticker = document.getElementById("ipoTicker");
 
-        ipoList.forEach(ipo => {
-          const tr = document.createElement("tr");
-          tr.innerHTML = `
-            <td>${ipo.company_name || "N/A"}</td>
-            <td>${ipo.open_date || "N/A"}</td>
-            <td>${ipo.close_date || "N/A"}</td>
-            <td>${ipo.price_band || "N/A"}</td>
-            <td>${ipo.lot_size || "N/A"}</td>
-          `;
-          tbody.appendChild(tr);
-        });
-
-      } catch (err) {
-        console.error("IPO fetch error:", err);
-        document.querySelector("#ipoTable tbody").innerHTML = "<tr><td colspan='5'>Failed to load IPO data</td></tr>";
+      if(ipoList.length === 0){
+        ticker.innerText = "No IPO data available";
+        return;
       }
+
+      ticker.innerHTML = ipoList.map(ipo=>{
+        return `<span class="ipo-card">
+          ${ipo.ipo_news_title} | ${ipo.ipo_period || 'N/A'} | ${ipo.issue_category || 'N/A'}
+        </span>`;
+      }).join('');
+
+    } catch(err){
+      console.error("IPO API error:", err);
+      document.getElementById("ipoTicker").innerText = "Error loading IPO data";
     }
 
-    loadIPO();
-    setInterval(loadIPO, 10 * 60 * 1000); // Refresh every 10 min
-  </script>
+    // Refresh every 10 minutes
+    setTimeout(loadIPO, 10*60*1000);
+  }
+  loadIPO();
+</script>
 
 </body>
 </html>
