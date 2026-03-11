@@ -7,9 +7,13 @@ import (
 
 func ipoHandler(w http.ResponseWriter, r *http.Request) {
 
-	url := "https://portal.tradebrains.in/_next/data/ausjJSiSNKMo2cwg3NZYn/ipo.json"
+	url := "https://portal.tradebrains.in/ipo/open_data"
 
-	resp, err := http.Get(url)
+	req, _ := http.NewRequest("GET", url, nil)
+	req.Header.Set("User-Agent", "Mozilla/5.0")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
 	if err != nil {
 		http.Error(w, "Failed to fetch IPO data", 500)
 		return
@@ -17,6 +21,7 @@ func ipoHandler(w http.ResponseWriter, r *http.Request) {
 	defer resp.Body.Close()
 
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 
 	io.Copy(w, resp.Body)
 }
