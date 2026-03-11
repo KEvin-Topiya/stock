@@ -1,149 +1,61 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Stock Gpt</title>
-    <style>
-      .ipo-container {
-        width: 100%;
-        padding: 20px;
-        background: #0f172a;
-        color: white;
-        font-family: Arial, sans-serif;
-      }
-
-      .ipo-title {
-        margin-bottom: 15px;
-        font-size: 20px;
-      }
-
-      .ipo-list {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 15px;
-      }
-
-      .ipo-card {
-        background: #1e293b;
-        padding: 15px;
-        border-radius: 8px;
-        border: 1px solid #334155;
-      }
-
-      .ipo-name {
-        font-weight: bold;
-        font-size: 16px;
-        margin-bottom: 6px;
-      }
-
-      .ipo-detail {
-        font-size: 13px;
-        margin: 3px 0;
-      }
-
-      .ipo-open {
-        color: #22c55e;
-      }
-
-      .ipo-close {
-        color: #f97316;
-      }
-      .ticker-wrapper {
-        width: 100%;
-        overflow: hidden;
-        background: #111;
-        color: white;
-        padding: 10px 0;
-        font-family: Arial, sans-serif;
-        border-top: 2px solid #333;
-        border-bottom: 2px solid #333;
-      }
-
-      .ticker {
-        display: inline-block;
-        white-space: nowrap;
-        animation: scrollTicker 40s linear infinite;
-        font-size: 14px;
-      }
-
-      .stock {
-        margin-right: 40px;
-      }
-
-      .green {
-        color: #00ff9c;
-      }
-
-      .red {
-        color: #ff4d4d;
-      }
-      @keyframes scrollTicker {
-        from {
-          transform: translateX(0);
-        }
-        to {
-          transform: translateX(-100%);
-        }
-      }
-    </style>
-  </head>
-
-  <body>
-    <div class="ticker-wrapper">
-      <div class="ticker" id="stockTicker">Loading market data...</div>
-    </div>
-
- <style>
-/* Container */
-.ipo-widget{
-  max-width:1000px;
-  margin:20px auto;
-  font-family:Arial, sans-serif;
-  color:#1f2937;
-  background:#f1f5f9;
-  border-radius:8px;
-  padding:15px;
-  box-shadow:0 3px 8px rgba(0,0,0,0.1);
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Stock + IPO</title>
+<style>
+/* Stock Ticker */
+.ticker-wrapper {
+  width: 100%;
+  overflow: hidden;
+  background: #111;
+  color: white;
+  padding: 10px 0;
+  font-family: Arial, sans-serif;
+  border-top: 2px solid #333;
+  border-bottom: 2px solid #333;
+}
+.ticker {
+  display: inline-block;
+  white-space: nowrap;
+  animation: scrollTicker 40s linear infinite;
+  font-size: 14px;
+}
+.stock {
+  margin-right: 40px;
+}
+.green { color: #00ff9c; }
+.red { color: #ff4d4d; }
+@keyframes scrollTicker {
+  from { transform: translateX(0); }
+  to { transform: translateX(-100%); }
 }
 
-/* Title */
-.ipo-widget h2{
-  text-align:center;
-  margin-bottom:15px;
-  font-size:22px;
-  color:#0f172a;
+/* IPO Table */
+.ipo-widget {
+  max-width: 1000px;
+  margin: 20px auto;
+  font-family: Arial, sans-serif;
+  color: #1f2937;
+  background: #f1f5f9;
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
 }
-
-/* Table */
-.ipo-table{
-  width:100%;
-  border-collapse:collapse;
-}
-
-.ipo-table th, .ipo-table td{
-  padding:10px 8px;
-  border:1px solid #cbd5e1;
-  text-align:left;
-  font-size:14px;
-}
-
-.ipo-table th{
-  background:#0f172a;
-  color:white;
-}
-
-.ipo-table tr:nth-child(even){
-  background:#e2e8f0;
-}
-
-.ipo-table tr:hover{
-  background:#cbd5e1;
-}
+.ipo-widget h2 { text-align:center; margin-bottom:15px; font-size:22px; color:#0f172a; }
+.ipo-table { width:100%; border-collapse:collapse; }
+.ipo-table th, .ipo-table td { padding:10px 8px; border:1px solid #cbd5e1; text-align:left; font-size:14px; }
+.ipo-table th { background:#0f172a; color:white; }
+.ipo-table tr:nth-child(even){ background:#e2e8f0; }
+.ipo-table tr:hover{ background:#cbd5e1; }
 </style>
 </head>
 <body>
+
+<div class="ticker-wrapper">
+  <div class="ticker" id="stockTicker">Loading market data...</div>
+</div>
 
 <div class="ipo-widget">
   <h2>Upcoming IPOs</h2>
@@ -164,23 +76,47 @@
 </div>
 
 <script>
-// Fetch IPO data from API
-async function loadIPOData(){
+// Stock Ticker
+async function loadStocks() {
+  const tickerEl = document.getElementById("stockTicker");
+  tickerEl.innerText = "Loading market data...";
+
+  try {
+    const res = await fetch("https://portal.tradebrains.in/api/index/constitients/NIFTY/?ascending=false&by=per_change&format=json&page=1&per_page=25");
+    const data = await res.json();
+    let html = "";
+    data.results.forEach(stock => {
+      html += `<span class="stock">${stock.symbol} <span class="${stock.per_change>=0?'green':'red'}">${stock.per_change}%</span></span>`;
+    });
+    tickerEl.innerHTML = html;
+  } catch(e) {
+    tickerEl.innerText = "Error loading market data";
+  }
+
+  // Random next fetch 2-10 min
+  const delay = Math.floor(Math.random()*(10-2)*60000) + 2*60000;
+  setTimeout(loadStocks, delay);
+}
+loadStocks();
+
+// IPO Table
+async function loadIPOData() {
   const url = "https://webnodejs.chittorgarh.com/cloud/report/data-read/82/1/3/2026/2025-26/0/all/0?search=&v=19-30";
+  const tbody = document.querySelector("#ipoTable tbody");
+  tbody.innerHTML = "<tr><td colspan='5'>Loading IPO data...</td></tr>";
 
-  try{
-    const response = await fetch(url);
-    const data = await response.json();
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
 
-    const tbody = document.querySelector("#ipoTable tbody");
-    tbody.innerHTML = ""; // clear
-
-    if(!data || data.length === 0){
-      tbody.innerHTML = "<tr><td colspan='5'>No IPO data available</td></tr>";
+    const ipos = data.result || []; // ✅ Access the array
+    if(ipos.length===0){
+      tbody.innerHTML = "<tr><td colspan='5'>No IPO data</td></tr>";
       return;
     }
 
-    data.forEach(ipo=>{
+    tbody.innerHTML = "";
+    ipos.forEach(ipo => {
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td>${ipo.company_name || ipo.name || "N/A"}</td>
@@ -192,104 +128,15 @@ async function loadIPOData(){
       tbody.appendChild(tr);
     });
 
-  }catch(e){
+  } catch(e){
     console.error("IPO fetch error", e);
-    const tbody = document.querySelector("#ipoTable tbody");
     tbody.innerHTML = "<tr><td colspan='5'>Failed to load IPO data</td></tr>";
   }
 }
 
-// Initial load
 loadIPOData();
-
-// Optional: refresh every 10 minutes
 setInterval(loadIPOData, 10*60*1000);
 </script>
 
 </body>
-  </body>
 </html>
-<script>
-  async function loadStocks() {
-    document.getElementById("stockTicker").innerText =
-      "Loading stock market data...";
-
-    const url =
-      "https://portal.tradebrains.in/api/index/constitients/NIFTY/?ascending=false&by=per_change&format=json&page=1&per_page=25";
-
-    try {
-      const response = await fetch(url);
-      const data = await response.json();
-
-      let stocks = data.results;
-      let html = "";
-
-      stocks.forEach((stock) => {
-        let changeClass = stock.per_change >= 0 ? "green" : "red";
-
-        html += `
-<span class="stock">
-${stock.symbol} 
-<span class="${changeClass}">
-${stock.per_change}%
-</span>
-</span>
-`;
-      });
-
-      document.getElementById("stockTicker").innerHTML = html;
-    } catch (e) {
-      document.getElementById("stockTicker").innerText =
-        "Error loading market data";
-    }
-
-    // schedule next fetch randomly between 2–10 minutes
-    scheduleNextFetch();
-  }
-
-  function scheduleNextFetch() {
-    const min = 2 * 60 * 1000; // 2 minutes
-    const max = 10 * 60 * 1000; // 10 minutes
-
-    const randomDelay = Math.floor(Math.random() * (max - min)) + min;
-
-    setTimeout(loadStocks, randomDelay);
-  }
-
-  // first run
-  loadStocks();
-</script>
-
-<script>
-  async function loadIPOData() {
-    const url = "https://portal.tradebrains.in/ipo/open_data";
-
-    try {
-      const response = await fetch(url);
-      console.log(response);
-      const data = await response.json();
-
-      let ipos = data?.pageProps?.ipoData || data?.pageProps?.ipos || [];
-
-      let html = "";
-
-      ipos.forEach((ipo) => {
-        html += `
-<div class="ipo-card">
-<div class="ipo-name">${ipo.company_name || "IPO"}</div>
-<div class="ipo-detail">Price: ${ipo.price_band || "N/A"}</div>
-<div class="ipo-detail ipo-open">Open: ${ipo.open_date || "N/A"}</div>
-<div class="ipo-detail ipo-close">Close: ${ipo.close_date || "N/A"}</div>
-</div>
-`;
-      });
-
-      document.getElementById("ipoList").innerHTML = html || "No IPO data";
-    } catch (e) {
-      document.getElementById("ipoList").innerText = "IPO data unavailable";
-    }
-  }
-
-  loadIPOData();
-  setInterval(loadIPOData, 10 * 60 * 1000);
-</script>
