@@ -5,32 +5,23 @@ import (
 	"net/http"
 )
 
-func niftyHandler(w http.ResponseWriter, r *http.Request) {
+func ipoHandler(w http.ResponseWriter, r *http.Request) {
 
-	url := "https://portal.tradebrains.in/api/index/constitients/NIFTY/?ascending=false&by=per_change&format=json&page=1&per_page=25"
+	url := "https://portal.tradebrains.in/_next/data/ausjJSiSNKMo2cwg3NZYn/ipo.json"
 
-	req, _ := http.NewRequest("GET", url, nil)
-
-	req.Header.Set("User-Agent", "Mozilla/5.0")
-	req.Header.Set("Accept", "application/json")
-	req.Header.Set("Referer", "https://portal.tradebrains.in/")
-	req.Header.Set("Origin", "https://portal.tradebrains.in")
-
-	client := &http.Client{}
-
-	resp, err := client.Do(req)
+	resp, err := http.Get(url)
 	if err != nil {
-		http.Error(w, "request failed", 500)
+		http.Error(w, "Failed to fetch IPO data", 500)
 		return
 	}
-
 	defer resp.Body.Close()
 
 	w.Header().Set("Content-Type", "application/json")
+
 	io.Copy(w, resp.Body)
 }
 
 func main() {
-	http.HandleFunc("/api/nifty", niftyHandler)
+	http.HandleFunc("/api/ipo", ipoHandler)
 	http.ListenAndServe(":8080", nil)
 }
