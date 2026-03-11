@@ -169,10 +169,12 @@ setTimeout(loadStocks, randomDelay);
 loadStocks();
 
 </script>
+
+
 <script>
 async function loadIPOData(){
 
-const url="https://portal.tradebrains.in/_next/data/ausjJSiSNKMo2cwg3NZYn/ipo.json";
+const url="https://corsproxy.io/?https://portal.tradebrains.in/_next/data/ausjJSiSNKMo2cwg3NZYn/ipo.json";
 
 try{
 
@@ -187,33 +189,16 @@ ipos.forEach(ipo=>{
 
 html += `
 <div class="ipo-card">
-
-<div class="ipo-name">
-${ipo.company_name || ipo.name || "IPO"}
-</div>
-
-<div class="ipo-detail">
-Price: ${ipo.price_band || ipo.price || "N/A"}
-</div>
-
-<div class="ipo-detail ipo-open">
-Open: ${ipo.open_date || ipo.open || "N/A"}
-</div>
-
-<div class="ipo-detail ipo-close">
-Close: ${ipo.close_date || ipo.close || "N/A"}
-</div>
-
+<div class="ipo-name">${ipo.company_name || "IPO"}</div>
+<div class="ipo-detail">Price: ${ipo.price_band || "N/A"}</div>
+<div class="ipo-detail ipo-open">Open: ${ipo.open_date || "N/A"}</div>
+<div class="ipo-detail ipo-close">Close: ${ipo.close_date || "N/A"}</div>
 </div>
 `;
 
 });
 
-if(html===""){
-html="No IPO data available";
-}
-
-document.getElementById("ipoList").innerHTML=html;
+document.getElementById("ipoList").innerHTML = html || "No IPO data";
 
 }catch(e){
 
@@ -223,9 +208,6 @@ document.getElementById("ipoList").innerText="IPO data unavailable";
 
 }
 
-// first load
 loadIPOData();
-
-// refresh every 10 minutes
-setInterval(loadIPOData, 10*60*1000);
+setInterval(loadIPOData,10*60*1000);
 </script>
