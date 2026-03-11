@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Stock & IPO Marquee</title>
+<title>Stock & IPO Dashboard</title>
 <style>
   body {
     font-family: Arial, sans-serif;
@@ -13,7 +13,7 @@
   }
 
   /* ===== STOCK TICKER ===== */
-  .ticker-wrapper, .ipo-ticker-wrapper {
+  .ticker-wrapper {
     width: 100%;
     overflow: hidden;
     background: #111;
@@ -21,10 +21,10 @@
     padding: 10px 0;
     border-top: 2px solid #333;
     border-bottom: 2px solid #333;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
   }
 
-  .ticker, .ipo-ticker {
+  .ticker {
     display: inline-block;
     white-space: nowrap;
     animation: scrollTicker 40s linear infinite;
@@ -39,26 +39,58 @@
     to { transform: translateX(-100%); }
   }
 
-  /* ===== IPO MARQUEE CARD ===== */
-  .ipo-card {
-    display: inline-block;
-    margin-right: 50px;
-    color: #ffd700;
-    font-weight: bold;
+  /* ===== IPO TABLE ===== */
+  .ipo-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  }
+
+  .ipo-table th, .ipo-table td {
+    padding: 10px;
+    border: 1px solid #cbd5e1;
+    font-size: 14px;
+    text-align: left;
+  }
+
+  .ipo-table th {
+    background: #111;
+    color: white;
+  }
+
+  .ipo-table tr:nth-child(even) {
+    background: #f2f2f2;
+  }
+
+  .ipo-table tr:hover {
+    background: #ddd;
   }
 </style>
 </head>
 <body>
 
-  <!-- STOCK TICKER -->
-  <div class="ticker-wrapper">
-    <div class="ticker" id="stockTicker">Loading NIFTY market data...</div>
-  </div>
+<!-- STOCK TICKER -->
+<div class="ticker-wrapper">
+  <div class="ticker" id="stockTicker">Loading NIFTY market data...</div>
+</div>
 
-  <!-- IPO TICKER -->
-  <div class="ipo-ticker-wrapper">
-    <div class="ipo-ticker" id="ipoTicker">Loading IPO data...</div>
-  </div>
+<!-- IPO TABLE -->
+<h2>Upcoming IPOs</h2>
+<table class="ipo-table" id="ipoTable">
+  <thead>
+    <tr>
+      <th>Company</th>
+      <th>Open Date</th>
+      <th>Close Date</th>
+      <th>Category</th>
+      <th>Lot Size</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td colspan="5">Loading IPO data...</td></tr>
+  </tbody>
+</table>
 
 <script>
   // ===== STOCK TICKER =====
@@ -93,29 +125,38 @@
   }
   loadStocks();
 
-  // ===== IPO MARQUEE =====
+  // ===== IPO TABLE =====
   async function loadIPO() {
     const url = "https://b.jpassociate.co.in/ipo";
     try {
       const response = await fetch(url);
       const data = await response.json();
       const ipoList = data?.ipoDropDownList || [];
-      const ticker = document.getElementById("ipoTicker");
+      const tbody = document.querySelector("#ipoTable tbody");
+      tbody.innerHTML = ""; // clear
 
       if(ipoList.length === 0){
-        ticker.innerText = "No IPO data available";
+        tbody.innerHTML = "<tr><td colspan='5'>No IPO data available</td></tr>";
         return;
       }
 
-      ticker.innerHTML = ipoList.map(ipo=>{
-        return `<span class="ipo-card">
-          ${ipo.ipo_news_title} | ${ipo.ipo_period || 'N/A'} | ${ipo.issue_category || 'N/A'}
-        </span>`;
-      }).join('');
+      ipoList.forEach(ipo=>{
+        const [openDate, closeDate] = (ipo.ipo_period || " - ").split(" - ");
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${ipo.ipo_news_title || "N/A"}</td>
+          <td>${openDate || "N/A"}</td>
+          <td>${closeDate || "N/A"}</td>
+          <td>${ipo.issue_category || "N/A"}</td>
+          <td>${ipo.lot_size || "N/A"}</td>
+        `;
+        tbody.appendChild(tr);
+      });
 
     } catch(err){
       console.error("IPO API error:", err);
-      document.getElementById("ipoTicker").innerText = "Error loading IPO data";
+      const tbody = document.querySelector("#ipoTable tbody");
+      tbody.innerHTML = "<tr><td colspan='5'>Error loading IPO data</td></tr>";
     }
 
     // Refresh every 10 minutes
