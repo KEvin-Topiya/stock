@@ -109,7 +109,7 @@
 
       ticker.innerHTML = stocks.map(s => {
         const colorClass = s.per_change >= 0 ? "green" : "red";
-        return `<span class="${colorClass}" style="margin-right:40px;">${s.symbol} | ${s.curr_price} | ${s.per_change}%</span>`;
+        return `<span class="${colorClass}" style="margin-right:40px;">${s.symbol} | ${s.curr_price}₹ | ${s.per_change}%</span>`;
       }).join('');
 
     } catch(err) {
