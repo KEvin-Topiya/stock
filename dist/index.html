@@ -1233,117 +1233,109 @@
     </div>
 
     <!-- AI STOCK CHAT -->
-<div class="page" id="page-ai">
-  <div class="chat-wrap">
+    <div class="page" id="page-ai">
+      <div class="chat-wrap">
+        <!-- HEADER -->
+        <div class="chat-header">
+          <div class="ai-avatar">📈</div>
+          <div>
+            <div class="ai-name">Stock AI Assistant</div>
+            <div class="ai-desc">Indian Stock Market (NSE/BSE)</div>
+          </div>
+          <div class="live-badge" style="margin-left: auto">
+            <div class="live-dot"></div>
+            LIVE
+          </div>
+        </div>
 
-    <!-- HEADER -->
-    <div class="chat-header">
-      <div class="ai-avatar">📈</div>
-      <div>
-        <div class="ai-name">Stock AI Assistant</div>
-        <div class="ai-desc">Indian Stock Market (NSE/BSE)</div>
-      </div>
-      <div class="live-badge" style="margin-left:auto;">
-        <div class="live-dot"></div>
-        LIVE
-      </div>
-    </div>
+        <!-- QUICK QUESTIONS -->
+        <div class="quick-asks" id="quick-asks">
+          <button class="quick-btn" onclick="sendQuick('Reliance stock')">
+            Reliance
+          </button>
+          <button class="quick-btn" onclick="sendQuick('TCS stock')">
+            TCS
+          </button>
+          <button class="quick-btn" onclick="sendQuick('Infosys stock')">
+            Infosys
+          </button>
+          <button class="quick-btn" onclick="sendQuick('HDFC Bank stock')">
+            HDFC Bank
+          </button>
+        </div>
 
-    <!-- QUICK QUESTIONS -->
-    <div class="quick-asks" id="quick-asks">
-      <button class="quick-btn" onclick="sendQuick('Reliance stock')">
-        Reliance
-      </button>
-      <button class="quick-btn" onclick="sendQuick('TCS stock')">
-        TCS
-      </button>
-      <button class="quick-btn" onclick="sendQuick('Infosys stock')">
-        Infosys
-      </button>
-      <button class="quick-btn" onclick="sendQuick('HDFC Bank stock')">
-        HDFC Bank
-      </button>
-    </div>
+        <!-- CHAT MESSAGES -->
+        <div class="chat-messages" id="chat-messages">
+          <div class="msg ai">
+            <div class="msg-avatar ai">📈</div>
+            <div class="msg-bubble">
+              Hi 👋 I am your <strong>Stock AI Assistant</strong>.<br /><br />
+              Ask me about any <strong>Indian stock</strong> like: <br />•
+              Reliance <br />• TCS <br />• Infosys <br /><br />
+              I will give you:
+              <br />📊 Price (approx) <br />📈 Trend <br />💡 Simple view
+            </div>
+          </div>
+        </div>
 
-    <!-- CHAT MESSAGES -->
-    <div class="chat-messages" id="chat-messages">
-      <div class="msg ai">
-        <div class="msg-avatar ai">📈</div>
-        <div class="msg-bubble">
-          Hi 👋 I am your <strong>Stock AI Assistant</strong>.<br><br>
-          Ask me about any <strong>Indian stock</strong> like:
-          <br>• Reliance
-          <br>• TCS
-          <br>• Infosys
-          <br><br>
-          I will give you:
-          <br>📊 Price (approx)
-          <br>📈 Trend
-          <br>💡 Simple view
+        <!-- INPUT -->
+        <div class="chat-input-area">
+          <input
+            class="chat-input"
+            id="chat-input"
+            placeholder="Ask about stock... (e.g. tell me about TCS)"
+            onkeydown="if (event.key === 'Enter') sendMsg();"
+          />
+          <button class="send-btn" onclick="sendMsg()">Send ➤</button>
         </div>
       </div>
     </div>
+    <script>
+      async function sendMsg() {
+        const input = document.getElementById("chat-input");
+        const message = input.value.trim();
+        if (!message) return;
 
-    <!-- INPUT -->
-    <div class="chat-input-area">
-      <input
-        class="chat-input"
-        id="chat-input"
-        placeholder="Ask about stock... (e.g. tell me about TCS)"
-        onkeydown="if (event.key === 'Enter') sendMsg();"
-      />
-      <button class="send-btn" onclick="sendMsg()">
-        Send ➤
-      </button>
-    </div>
+        addMessage(message, "user");
+        input.value = "";
+        const res = await fetch("https://b.jpassociate.co.in/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message }),
+        });
 
-  </div>
-</div>
-<script>
-async function sendMsg() {
-  const input = document.getElementById("chat-input");
-  const message = input.value.trim();
-  if (!message) return;
+        let data;
 
-  addMessage(message, "user");
-  input.value = "";
-const res = await fetch("https://b.jpassociate.co.in/api/chat", {
-  method: "POST",
-  headers: {"Content-Type": "application/json"},
-  body: JSON.stringify({ message })
-});
+        try {
+          data = await res.json();
+        } catch (e) {
+          addMessage("Server error. Please try again.", "ai");
+          return;
+        }
 
-let data;
+        addMessage(data.reply || "No response", "ai");
+      }
 
-try {
-  data = await res.json();
-} catch (e) {
-  addMessage("Server error. Please try again.", "ai");
-  return;
-}
+      function sendQuick(text) {
+        document.getElementById("chat-input").value = text;
+        sendMsg();
+      }
 
-addMessage(data.reply || "No response", "ai");}
+      function addMessage(text, type) {
+        const chat = document.getElementById("chat-messages");
 
-function sendQuick(text) {
-  document.getElementById("chat-input").value = text;
-  sendMsg();
-}
+        const msg = document.createElement("div");
+        msg.className = "msg " + type;
 
-function addMessage(text, type) {
-  const chat = document.getElementById("chat-messages");
-
-  const msg = document.createElement("div");
-  msg.className = "msg " + type;
-
-  msg.innerHTML = `
+        msg.innerHTML = `
     <div class="msg-avatar">${type === "ai" ? "📈" : "🧑"}</div>
     <div class="msg-bubble">${text}</div>
   `;
 
-  chat.appendChild(msg);
-  chat.scrollTop = chat.scrollHeight;
-}
-</script>
+        chat.appendChild(msg);
+        chat.scrollTop = chat.scrollHeight;
+      }
+    </script>
     <!--
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////     
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1357,140 +1349,7 @@ function addMessage(text, type) {
 -->
     <script>
       // ===== DATA =====
-      const stocksData = [
-        {
-          name: "RELIANCE",
-          sector: "energy",
-          price: "₹2,891",
-          chg: "+1.4%",
-          up: true,
-          vol: "12.3M",
-          pe: "23.4",
-          cap: "₹19.5L Cr",
-          signal: "buy",
-        },
-        {
-          name: "TCS",
-          sector: "it",
-          price: "₹3,742",
-          chg: "+0.6%",
-          up: true,
-          vol: "3.1M",
-          pe: "28.7",
-          cap: "₹13.6L Cr",
-          signal: "hold",
-        },
-        {
-          name: "INFOSYS",
-          sector: "it",
-          price: "₹1,638",
-          chg: "+0.8%",
-          up: true,
-          vol: "8.2M",
-          pe: "24.1",
-          cap: "₹6.8L Cr",
-          signal: "buy",
-        },
-        {
-          name: "HDFC BANK",
-          sector: "banking",
-          price: "₹1,742",
-          chg: "−0.3%",
-          up: false,
-          vol: "9.4M",
-          pe: "18.2",
-          cap: "₹13.2L Cr",
-          signal: "hold",
-        },
-        {
-          name: "ICICI BANK",
-          sector: "banking",
-          price: "₹1,248",
-          chg: "+1.1%",
-          up: true,
-          vol: "14.7M",
-          pe: "17.8",
-          cap: "₹8.8L Cr",
-          signal: "buy",
-        },
-        {
-          name: "SBI",
-          sector: "banking",
-          price: "₹762",
-          chg: "+0.4%",
-          up: true,
-          vol: "22.1M",
-          pe: "10.3",
-          cap: "₹6.8L Cr",
-          signal: "buy",
-        },
-        {
-          name: "TATA MOTORS",
-          sector: "auto",
-          price: "₹821",
-          chg: "+2.1%",
-          up: true,
-          vol: "18.9M",
-          pe: "8.2",
-          cap: "₹3.0L Cr",
-          signal: "buy",
-        },
-        {
-          name: "MARUTI SUZUKI",
-          sector: "auto",
-          price: "₹12,450",
-          chg: "−0.5%",
-          up: false,
-          vol: "1.2M",
-          pe: "29.4",
-          cap: "₹3.7L Cr",
-          signal: "hold",
-        },
-        {
-          name: "WIPRO",
-          sector: "it",
-          price: "₹285",
-          chg: "−1.1%",
-          up: false,
-          vol: "11.3M",
-          pe: "19.8",
-          cap: "₹3.0L Cr",
-          signal: "sell",
-        },
-        {
-          name: "BAJAJ FINANCE",
-          sector: "banking",
-          price: "₹7,210",
-          chg: "+0.9%",
-          up: true,
-          vol: "2.4M",
-          pe: "34.2",
-          cap: "₹4.3L Cr",
-          signal: "hold",
-        },
-        {
-          name: "ADANI PORTS",
-          sector: "infra",
-          price: "₹1,315",
-          chg: "−1.2%",
-          up: false,
-          vol: "7.8M",
-          pe: "26.1",
-          cap: "₹2.8L Cr",
-          signal: "sell",
-        },
-        {
-          name: "LT",
-          sector: "infra",
-          price: "₹3,542",
-          chg: "+0.7%",
-          up: true,
-          vol: "4.1M",
-          pe: "35.8",
-          cap: "₹4.9L Cr",
-          signal: "buy",
-        },
-      ];
+      const stocksData = [2335];
 
       const ipoData = [
         {
@@ -1772,26 +1631,68 @@ function addMessage(text, type) {
       // auto refresh every 30 seconds
       setInterval(updateDashboard, 30000);
 
-      function renderStocks(filter = "all") {
-        let data = stocksData;
-        if (filter !== "all")
-          data = data.filter((s) => s.sector === filter || s.signal === filter);
-        document.getElementById("stocks-body").innerHTML = data
-          .map(
-            (s) => `
-    <tr>
-      <td><div class="stock-name">${s.name}</div><span class="sector-tag">${s.sector}</span></td>
-      <td>${s.price}</td>
-      <td class="${s.up ? "up" : "down"}">${s.chg}</td>
-      <td>${s.vol}</td><td>${s.pe}</td><td>${s.cap}</td>
-      <td><span class="signal ${s.signal}">${s.signal === "buy" ? "⬆ BUY" : s.signal === "sell" ? "⬇ SELL" : "◆ HOLD"}</span></td>
-    </tr>`,
-          )
-          .join("");
-      }
-      function filterStocks(f) {
-        renderStocks(f);
-      }
+  
+const stocks = [1333, 11536,2885, 3045,759265,1594,10999,16675,15083,11483]; 
+
+async function renderStocks() {
+  try {
+    const res = await fetch("https://b.jpassociate.co.in/api/prices", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        tokens: stocks
+      })
+    });
+
+    const data = await res.json();
+
+    // Example expected format:
+    // data = {
+    //   "2335": { name, price, chg, vol, pe, cap, signal }
+    // }
+
+    const rows = stocks.map(token => {
+      const s = data[token];
+
+      if (!s) return "";
+
+      return `
+      <tr>
+        <td>
+          <div class="stock-name">${s.name || token}</div>
+        </td>
+        <td>₹${s.price}</td>
+        <td class="${s.chg >= 0 ? "up" : "down"}">${s.chg}%</td>
+        <td>${s.vol || "-"}</td>
+        <td>${s.pe || "-"}</td>
+        <td>${s.cap || "-"}</td>
+        <td>
+          <span class="signal ${s.signal || "hold"}">
+            ${
+              s.signal === "buy"
+                ? "⬆ BUY"
+                : s.signal === "sell"
+                ? "⬇ SELL"
+                : "◆ HOLD"
+            }
+          </span>
+        </td>
+      </tr>`;
+    });
+
+    document.getElementById("stocks-body").innerHTML = rows.join("");
+
+  } catch (err) {
+    console.error(err);
+    document.getElementById("stocks-body").innerHTML =
+      "<tr><td colspan='7'>Failed to load data</td></tr>";
+  }
+}
+
+// call on page load
+renderStocks();
 
       function renderIPO() {
         document.getElementById("ipo-grid").innerHTML = ipoData
@@ -1872,10 +1773,6 @@ function addMessage(text, type) {
         });
       }
 
-
-      
-
-     
       // AngelOne symbol tokens for LTP fetch
       const ANGEL_SYMBOLS = [
         {
