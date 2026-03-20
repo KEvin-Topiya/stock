@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"crypto/hmac"
 	"crypto/sha1"
 	"encoding/base32"
@@ -18,6 +19,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	openai "github.com/sashabaranov/go-openai"
 )
 
 //////////////////////////////////////////////////////////
@@ -284,6 +287,7 @@ func main() {
 	http.HandleFunc("/logout", func(w http.ResponseWriter, r *http.Request) {
 		logoutAndExit()
 	})
+	http.HandleFunc("/api/chat", StockChatHandler)
 	http.HandleFunc("/api/chart", chartHandler)
 	http.HandleFunc("/api/gainers", gainersHandler)
 
@@ -934,4 +938,60 @@ func getMacAddress() string {
 }
 
 // //////////
-// //Scrp/////////
+// //chatgpt////////
+
+type ChatRequest struct {
+	Message string `json:"message"`
+}
+
+type ChatResponse struct {
+	Reply string `json:"reply"`
+}
+
+var client = openai.NewClient(os.Getenv("chatKey"))
+
+func StockChatHandler(w http.ResponseWriter, r *http.Request) {
+	var req ChatRequest
+	json.NewDecoder(r.Body).Decode(&req)
+
+	systemPrompt := `
+You are an AI chatbot for an Indian stock market website.
+
+STRICT RULES:
+- ONLY answer about Indian stock market
+- If unrelated → reply: "Please ask questions related to Indian stock market."
+- Keep answers SHORT (max 3-4 lines)
+
+STOCK RESPONSE FORMAT:
+[Stock Name]:
+Price: ₹XXXX (approx)
+Trend: Bullish / Bearish / Sideways
+View: Short suggestion (no direct buy/sell)
+
+- If stock name is unclear, still try to guess common Indian stocks (Reliance, TCS, Infosys, etc.)
+- Do NOT mention crypto or global markets
+- This is assumed data, so DO NOT say "live" or "real-time"
+`
+
+	resp, err := client.CreateChatCompletion(
+		context.Background(),
+		openai.ChatCompletionRequest{
+			Model: "gpt-5.3",
+			Messages: []openai.ChatCompletionMessage{
+				{Role: "system", Content: systemPrompt},
+				{Role: "user", Content: req.Message},
+			},
+		},
+	)
+
+	if err != nil {
+		http.Error(w, "AI Error", http.StatusInternalServerError)
+		return
+	}
+
+	reply := resp.Choices[0].Message.Content
+
+	json.NewEncoder(w).Encode(ChatResponse{
+		Reply: reply,
+	})
+}

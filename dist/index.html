@@ -838,9 +838,15 @@
     <div class="page active" id="page-dashboard">
       <div class="grid-3">
         <div class="card">
-          <div class="card-label" style="font-size:large;color: white;">NIFTY 50</div>
-          <div class="card-value" data-symbol="99926000" data-field="ltp">--</div>
-          <div class="card-sub" data-symbol="99926000" data-field="change">--</div>
+          <div class="card-label" style="font-size: large; color: white">
+            NIFTY 50
+          </div>
+          <div class="card-value" data-symbol="99926000" data-field="ltp">
+            --
+          </div>
+          <div class="card-sub" data-symbol="99926000" data-field="change">
+            --
+          </div>
         </div>
 
         <div class="card">
@@ -1226,96 +1232,113 @@
       <div id="news-list"></div>
     </div>
 
-    <!-- AI ADVISOR -->
-    <div class="page" id="page-ai">
-      <div class="chat-wrap">
-        <div class="chat-header">
-          <div class="ai-avatar">🤖</div>
-          <div>
-            <div class="ai-name">StockSathi AI Advisor</div>
-            <div class="ai-desc">
-              NSE/BSE · Commodities · IPO · Gujarati/Hindi/English
-            </div>
-          </div>
-          <div class="live-badge" style="margin-left: auto">
-            <div class="live-dot"></div>
-            ONLINE
-          </div>
-        </div>
-        <div class="quick-asks" id="quick-asks">
-          <button
-            class="quick-btn"
-            onclick="sendQuick('RELIANCE stock buy karu ke nahi?')"
-          >
-            Reliance buy karu?
-          </button>
-          <button
-            class="quick-btn"
-            onclick="sendQuick('Gold aajna diwase keva raheshe?')"
-          >
-            Gold outlook?
-          </button>
-          <button
-            class="quick-btn"
-            onclick="sendQuick('Best IPO right now kon su che?')"
-          >
-            Best IPO?
-          </button>
-          <button
-            class="quick-btn"
-            onclick="
-              sendQuick(
-                'Nifty 50 aavshe mare client ne equity mutual fund recommend karu ke nahi?',
-              )
-            "
-          >
-            Mutual Fund?
-          </button>
-          <button
-            class="quick-btn"
-            onclick="
-              sendQuick(
-                'Maro client ₹1 lakh invest karva mango che 6 mahina maate, su karu?',
-              )
-            "
-          >
-            ₹1L Invest?
-          </button>
-          <button
-            class="quick-btn"
-            onclick="sendQuick('Bank Nifty options strategy for today?')"
-          >
-            BankNifty Options?
-          </button>
-        </div>
-        <div class="chat-messages" id="chat-messages">
-          <div class="msg ai">
-            <div class="msg-avatar ai">🤖</div>
-            <div class="msg-bubble">
-              નમસ્તે! 🙏 હું <strong>StockSathi AI</strong> છું – તમારો personal
-              stock market advisor.<br /><br />
-              હું આ બધામાં help કરી શકું:<br />
-              📈 <strong>NSE/BSE stocks</strong> ની analysis<br />
-              🥇 <strong>Gold & Commodities</strong> outlook<br />
-              🚀 <strong>IPO</strong> recommendations<br />
-              💡 <strong>Client investment</strong> advice<br /><br />
-              કોઈ પણ question પૂછો – Gujarati, Hindi, અથવા English માં! 😊
-            </div>
-          </div>
-        </div>
-        <div class="chat-input-area">
-          <input
-            class="chat-input"
-            id="chat-input"
-            placeholder="Stock વિશે પૂછો... (e.g. TCS buy karu ke nahi?)"
-            onkeydown="if (event.key === 'Enter') sendMsg();"
-          />
-          <button class="send-btn" id="send-btn" onclick="sendMsg()">
-            Send ➤
-          </button>
+    <!-- AI STOCK CHAT -->
+<div class="page" id="page-ai">
+  <div class="chat-wrap">
+
+    <!-- HEADER -->
+    <div class="chat-header">
+      <div class="ai-avatar">📈</div>
+      <div>
+        <div class="ai-name">Stock AI Assistant</div>
+        <div class="ai-desc">Indian Stock Market (NSE/BSE)</div>
+      </div>
+      <div class="live-badge" style="margin-left:auto;">
+        <div class="live-dot"></div>
+        LIVE
+      </div>
+    </div>
+
+    <!-- QUICK QUESTIONS -->
+    <div class="quick-asks" id="quick-asks">
+      <button class="quick-btn" onclick="sendQuick('Reliance stock')">
+        Reliance
+      </button>
+      <button class="quick-btn" onclick="sendQuick('TCS stock')">
+        TCS
+      </button>
+      <button class="quick-btn" onclick="sendQuick('Infosys stock')">
+        Infosys
+      </button>
+      <button class="quick-btn" onclick="sendQuick('HDFC Bank stock')">
+        HDFC Bank
+      </button>
+    </div>
+
+    <!-- CHAT MESSAGES -->
+    <div class="chat-messages" id="chat-messages">
+      <div class="msg ai">
+        <div class="msg-avatar ai">📈</div>
+        <div class="msg-bubble">
+          Hi 👋 I am your <strong>Stock AI Assistant</strong>.<br><br>
+          Ask me about any <strong>Indian stock</strong> like:
+          <br>• Reliance
+          <br>• TCS
+          <br>• Infosys
+          <br><br>
+          I will give you:
+          <br>📊 Price (approx)
+          <br>📈 Trend
+          <br>💡 Simple view
         </div>
       </div>
     </div>
+
+    <!-- INPUT -->
+    <div class="chat-input-area">
+      <input
+        class="chat-input"
+        id="chat-input"
+        placeholder="Ask about stock... (e.g. tell me about TCS)"
+        onkeydown="if (event.key === 'Enter') sendMsg();"
+      />
+      <button class="send-btn" onclick="sendMsg()">
+        Send ➤
+      </button>
+    </div>
+
+  </div>
+</div>
+<script>
+async function sendMsg() {
+  const input = document.getElementById("chat-input");
+  const message = input.value.trim();
+  if (!message) return;
+
+  addMessage(message, "user");
+  input.value = "";
+
+  const res = await fetch("http://localhost:8080/api/chat", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ message })
+  });
+
+  const data = await res.json();
+
+  addMessage(data.reply, "ai");
+}
+
+function sendQuick(text) {
+  document.getElementById("chat-input").value = text;
+  sendMsg();
+}
+
+function addMessage(text, type) {
+  const chat = document.getElementById("chat-messages");
+
+  const msg = document.createElement("div");
+  msg.className = "msg " + type;
+
+  msg.innerHTML = `
+    <div class="msg-avatar">${type === "ai" ? "📈" : "🧑"}</div>
+    <div class="msg-bubble">${text}</div>
+  `;
+
+  chat.appendChild(msg);
+  chat.scrollTop = chat.scrollHeight;
+}
+</script>
     <!--
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////     
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1682,64 +1705,67 @@
 
       // render fix card 6 stock
 
-async function fetchStockPrices(symbolTokens) {
-  try {
-    const res = await fetch('https://b.jpassociate.co.in/api/prices', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tokens: symbolTokens })
-    });
+      async function fetchStockPrices(symbolTokens) {
+        try {
+          const res = await fetch("https://b.jpassociate.co.in/api/prices", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ tokens: symbolTokens }),
+          });
 
-    if (!res.ok) throw new Error('Price fetch failed');
+          if (!res.ok) throw new Error("Price fetch failed");
 
-    const json = await res.json();
-    return json?.data?.fetched || [];
+          const json = await res.json();
+          return json?.data?.fetched || [];
+        } catch (err) {
+          console.error("Error fetching prices:", err);
+          return [];
+        }
+      }
 
-  } catch (err) {
-    console.error('Error fetching prices:', err);
-    return [];
-  }
-}
+      async function updateDashboard() {
+        const elements = document.querySelectorAll("[data-symbol]");
+        const symbolTokens = [
+          ...new Set(Array.from(elements).map((el) => el.dataset.symbol)),
+        ];
 
-async function updateDashboard() {
-  const elements = document.querySelectorAll('[data-symbol]');
-  const symbolTokens = [...new Set(Array.from(elements).map(el => el.dataset.symbol))];
+        if (symbolTokens.length === 0) return;
 
-  if (symbolTokens.length === 0) return;
+        const fetched = await fetchStockPrices(symbolTokens);
 
-  const fetched = await fetchStockPrices(symbolTokens);
+        // map by symbolToken for easier access
+        const map = {};
+        fetched.forEach((item) => {
+          map[item.symbolToken] = item;
+        });
 
-  // map by symbolToken for easier access
-  const map = {};
-  fetched.forEach(item => { map[item.symbolToken] = item; });
+        elements.forEach((el) => {
+          const token = el.dataset.symbol;
+          const field = el.dataset.field;
+          const stock = map[token];
+          if (!stock) return;
 
-  elements.forEach(el => {
-    const token = el.dataset.symbol;
-    const field = el.dataset.field;
-    const stock = map[token];
-    if (!stock) return;
+          if (field === "ltp") {
+            el.textContent = Number(stock.ltp).toLocaleString("en-IN");
+            el.className = stock.percentChange >= 0 ? "up" : "down";
+          }
 
-    if (field === 'ltp') {
-      el.textContent = Number(stock.ltp).toLocaleString('en-IN');
-      el.className=stock.percentChange>=0?'up':'down';
-    }
+          if (field === "change") {
+            const netChange = Number(stock.netChange);
+            const percent = Number(stock.percentChange);
+            const up = netChange >= 0;
 
-    if (field === 'change') {
-      const netChange = Number(stock.netChange);
-      const percent = Number(stock.percentChange);
-      const up = netChange >= 0;
+            el.textContent = `${up ? "▲" : "▼"} ${netChange.toFixed(2)} (${percent.toFixed(2)}%)`;
+            el.className = `card-sub ${up ? "up" : "down"}`;
+          }
+        });
+      }
 
-      el.textContent = `${up ? '▲' : '▼'} ${netChange.toFixed(2)} (${percent.toFixed(2)}%)`;
-      el.className = `card-sub ${up ? 'up' : 'down'}`;
-    }
-  });
-}
+      // initial load
+      updateDashboard();
 
-// initial load
-updateDashboard();
-
-// auto refresh every 30 seconds
-setInterval(updateDashboard, 30000);
+      // auto refresh every 30 seconds
+      setInterval(updateDashboard, 30000);
 
       function renderStocks(filter = "all") {
         let data = stocksData;
