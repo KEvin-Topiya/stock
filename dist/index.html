@@ -1661,13 +1661,12 @@ async function renderStocks() {
       return `
       <tr>
         <td>
-          <div class="stock-name">${s.name || token}</div>
+          <div class="stock-name">${s.tradingSymbol || token}</div>
         </td>
-        <td>₹${s.price}</td>
-        <td class="${s.chg >= 0 ? "up" : "down"}">${s.chg}%</td>
-        <td>${s.vol || "-"}</td>
-        <td>${s.pe || "-"}</td>
-        <td>${s.cap || "-"}</td>
+        <td>₹${s.ltp}</td>
+        <td class="${s.percentChange >= 0 ? "up" : "down"}">${s.percentChange}%</td>
+        <td>${s.tradeVolume || "-"}</td>
+       
         <td>
           <span class="signal ${s.signal || "hold"}">
             ${
