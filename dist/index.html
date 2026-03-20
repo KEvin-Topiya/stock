@@ -1307,7 +1307,7 @@ async function sendMsg() {
 
   addMessage(message, "user");
   input.value = "";
-const res = await fetch("http://b.jpassociate.co.in/api/chat", {
+const res = await fetch("https://b.jpassociate.co.in/api/chat", {
   method: "POST",
   headers: {"Content-Type": "application/json"},
   body: JSON.stringify({ message })
