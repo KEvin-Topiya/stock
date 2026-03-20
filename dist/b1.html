@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Stock & IPO Dashboard</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #f5f5f5;
+    margin: 0;
+    padding: 20px;
+  }
+
+  /* ===== STOCK TICKER ===== */
+  .ticker-wrapper {
+    width: 100%;
+    overflow: hidden;
+    background: #111;
+    color: white;
+    padding: 10px 0;
+    border-top: 2px solid #333;
+    border-bottom: 2px solid #333;
+    margin-bottom: 30px;
+  }
+
+  .ticker {
+    display: inline-block;
+    white-space: nowrap;
+    animation: scrollTicker 40s linear infinite;
+    font-size: 14px;
+  }
+
+  .green { color: #00ff9c; }
+  .red { color: #ff4d4d; }
+
+  @keyframes scrollTicker {
+    from { transform: translateX(0); }
+    to { transform: translateX(-100%); }
+  }
+
+  /* ===== IPO TABLE ===== */
+  .ipo-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  }
+
+  .ipo-table th, .ipo-table td {
+    padding: 10px;
+    border: 1px solid #cbd5e1;
+    font-size: 14px;
+    text-align: left;
+  }
+
+  .ipo-table th {
+    background: #111;
+    color: white;
+  }
+
+  .ipo-table tr:nth-child(even) {
+    background: #f2f2f2;
+  }
+
+  .ipo-table tr:hover {
+    background: #ddd;
+  }
+</style>
+</head>
+<body>
+
+<!-- STOCK TICKER -->
+<div class="ticker-wrapper">
+  <div class="ticker" id="stockTicker">Loading NIFTY market data...</div>
+</div>
+
+<!-- IPO TABLE -->
+<h2>Upcoming IPOs</h2>
+<table class="ipo-table" id="ipoTable">
+  <thead>
+    <tr>
+      <th>Company</th>
+      <th>Open Date</th>
+      <th>Close Date</th>
+      <th>Category</th>
+      <th>Lot Size</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td colspan="5">Loading IPO data...</td></tr>
+  </tbody>
+</table>
+
+<script>
+  // ===== STOCK TICKER =====
+  async function loadStocks() {
+    const url = "https://portal.tradebrains.in/api/index/constitients/NIFTY/?ascending=false&by=per_change&format=json&page=1&per_page=25";
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+      const stocks = data.results || [];
+      const ticker = document.getElementById("stockTicker");
+
+      if (stocks.length === 0) {
+        ticker.innerText = "No stock data available";
+        return;
+      }
+
+      ticker.innerHTML = stocks.map(s => {
+        const colorClass = s.per_change >= 0 ? "green" : "red";
+        return `<span class="${colorClass}" style="margin-right:40px;">${s.symbol} | ${s.curr_price}₹ | ${s.per_change}%</span>`;
+      }).join('');
+
+    } catch(err) {
+      console.error("Stock API error:", err);
+      document.getElementById("stockTicker").innerText = "Error loading market data";
+    }
+
+    // Random refresh 2–10 minutes
+    const min = 2*60*1000;
+    const max = 10*60*1000;
+    const randomDelay = Math.floor(Math.random()*(max-min))+min;
+    setTimeout(loadStocks, randomDelay);
+  }
+  loadStocks();
+
+  // ===== IPO TABLE =====
+  async function loadIPO() {
+    const url = "https://b.jpassociate.co.in/ipo";
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+      const ipoList = data?.ipoDropDownList || [];
+      const tbody = document.querySelector("#ipoTable tbody");
+      tbody.innerHTML = ""; // clear
+
+      if(ipoList.length === 0){
+        tbody.innerHTML = "<tr><td colspan='5'>No IPO data available</td></tr>";
+        return;
+      }
+
+      ipoList.forEach(ipo=>{
+        const [openDate, closeDate] = (ipo.ipo_period || " - ").split(" - ");
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${ipo.ipo_news_title || "N/A"}</td>
+          <td>${openDate || "N/A"}</td>
+          <td>${closeDate || "N/A"}</td>
+          <td>${ipo.issue_category || "N/A"}</td>
+          <td>${ipo.lot_size || "N/A"}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+    } catch(err){
+      console.error("IPO API error:", err);
+      const tbody = document.querySelector("#ipoTable tbody");
+      tbody.innerHTML = "<tr><td colspan='5'>Error loading IPO data</td></tr>";
+    }
+
+    // Refresh every 10 minutes
+    setTimeout(loadIPO, 10*60*1000);
+  }
+  loadIPO();
+</script>
+
+</body>
+</html>
