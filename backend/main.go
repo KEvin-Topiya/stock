@@ -985,7 +985,10 @@ View: Short suggestion (no direct buy/sell)
 	)
 
 	if err != nil {
-		http.Error(w, "AI Error", http.StatusInternalServerError)
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]string{
+			"reply": "Something went wrong. Please try again.",
+		})
 		return
 	}
 
