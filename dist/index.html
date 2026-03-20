@@ -1539,7 +1539,7 @@ loadGainers();
       updateDashboard();
 
       // auto refresh every 30 seconds
-      setInterval([updateDashboard, renderStocks], 30000);
+      setInterval([updateDashboard, renderStocks,loadGainers], 30000);
 
       const stocks = [
         "1333",
