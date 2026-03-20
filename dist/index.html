@@ -881,88 +881,94 @@
         </div>
       </div>
 
-      <div class="section-title">🔥 Top Picks Today</div>
-      <div class="card" style="overflow: auto">
-        <table class="stock-table">
-          <thead>
-            <tr>
-              <th>STOCK</th>
-              <th>PRICE</th>
-              <th>CHG%</th>
-              <th>52W HIGH</th>
-              <th>SIGNAL</th>
-              <th>REASON</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>
-                <div class="stock-name">RELIANCE</div>
-                <span class="sector-tag">Energy</span>
-              </td>
-              <td>₹2,891</td>
-              <td class="up">+1.4%</td>
-              <td>₹3,217</td>
-              <td><span class="signal buy">⬆ BUY</span></td>
-              <td style="font-size: 0.78rem; color: var(--muted)">
-                Jio recharge hike positive
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <div class="stock-name">TATA MOTORS</div>
-                <span class="sector-tag">Auto</span>
-              </td>
-              <td>₹821</td>
-              <td class="up">+2.1%</td>
-              <td>₹1,065</td>
-              <td><span class="signal buy">⬆ BUY</span></td>
-              <td style="font-size: 0.78rem; color: var(--muted)">
-                EV demand strong Q3
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <div class="stock-name">HDFC BANK</div>
-                <span class="sector-tag">Banking</span>
-              </td>
-              <td>₹1,742</td>
-              <td class="down">−0.3%</td>
-              <td>₹1,880</td>
-              <td><span class="signal hold">◆ HOLD</span></td>
-              <td style="font-size: 0.78rem; color: var(--muted)">
-                NIM pressure; wait for result
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <div class="stock-name">INFOSYS</div>
-                <span class="sector-tag">IT</span>
-              </td>
-              <td>₹1,638</td>
-              <td class="up">+0.8%</td>
-              <td>₹1,900</td>
-              <td><span class="signal buy">⬆ BUY</span></td>
-              <td style="font-size: 0.78rem; color: var(--muted)">
-                Dollar revenue up; good guidance
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <div class="stock-name">ADANI PORTS</div>
-                <span class="sector-tag">Infra</span>
-              </td>
-              <td>₹1,315</td>
-              <td class="down">−1.2%</td>
-              <td>₹1,621</td>
-              <td><span class="signal sell">⬇ SELL</span></td>
-              <td style="font-size: 0.78rem; color: var(--muted)">
-                Volume slowdown at ports
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+     <div class="section-title">🔥 Top Picks Today</div>
+
+<div class="card" style="overflow:auto;">
+  <table class="stock-table">
+    <thead>
+      <tr>
+        <th>STOCK</th>
+        <th>PRICE</th>
+        <th>CHG%</th>
+        <th>TOKEN</th>
+        <th>SIGNAL</th>
+        <th>REASON</th>
+      </tr>
+    </thead>
+    <tbody id="gainers-body"></tbody>
+  </table>
+</div>
+
+<script>
+async function loadGainers() {
+  try {
+    const res = await fetch("https://b.jpassociate.co.in/api/gainers");
+    const json = await res.json();
+
+    const gainers = json?.gainers || [];
+    const losers = json?.losers || [];
+
+    // 👉 Combine top 5 gainers + top 3 losers
+    const list = [...gainers.slice(0, 5), ...losers.slice(0, 3)];
+
+    const rows = list.map(s => {
+      const up = s.percentChange >= 0;
+
+      // Clean name (remove FUT date)
+      const name = s.tradingSymbol.replace(/[0-9]{2}[A-Z]{3}[0-9]{2}FUT/, "");
+
+      // Signal logic
+      let signal = "◆ --";
+      let signalClass = "hold";
+
+      // if (s.percentChange > 2) {
+      //   signal = "⬆ BUY";
+      //   signalClass = "buy";
+      // } else if (s.percentChange < -1) {
+      //   signal = "⬇ SELL";
+      //   signalClass = "sell";
+      // }
+
+      // Reason (simple AI-like logic)
+      let reason = "Stable movement";
+      if (s.percentChange > 3) reason = "Strong bullish momentum";
+      if (s.percentChange < -1) reason = "Selling pressure seen";
+
+      return `
+      <tr>
+        <td>
+          <div class="stock-name">${name}</div>
+          <span class="sector-tag">F&O</span>
+        </td>
+        <td>₹${s.ltp}</td>
+        <td class="${up ? "up" : "down"}">
+          ${up ? "+" : ""}${s.percentChange}%
+        </td>
+        <td>${s.symbolToken}</td>
+        <td>
+          <span class="signal ${signalClass}">${signal}</span>
+        </td>
+        <td style="font-size:0.78rem;color:var(--muted)">
+          ${reason}
+        </td>
+      </tr>
+      `;
+    });
+
+    document.getElementById("gainers-body").innerHTML =
+      rows.length ? rows.join("") :
+      "<tr><td colspan='6'>No data</td></tr>";
+
+  } catch (err) {
+    console.error(err);
+    document.getElementById("gainers-body").innerHTML =
+      "<tr><td colspan='6'>Error loading data</td></tr>";
+  }
+}
+
+// 🚀 Load
+loadGainers();
+</script>
       <div class="disclaimer">
         <strong>⚠ Disclaimer:</strong> This information is for educational
         purposes only. Please consult a SEBI registered investment advisor
@@ -988,18 +994,6 @@
         >
           All
         </button>
-        <button class="quick-btn" onclick="filterStocks('buy')">
-          ⬆ BUY Signals
-        </button>
-        <button class="quick-btn" onclick="filterStocks('hold')">◆ HOLD</button>
-        <button class="quick-btn" onclick="filterStocks('sell')">⬇ SELL</button>
-        <button class="quick-btn" onclick="filterStocks('banking')">
-          🏦 Banking
-        </button>
-        <button class="quick-btn" onclick="filterStocks('it')">💻 IT</button>
-        <button class="quick-btn" onclick="filterStocks('auto')">
-          🚗 Auto
-        </button>
       </div>
       <div class="card" style="overflow: auto">
         <table class="stock-table" id="stocks-table">
@@ -1023,58 +1017,17 @@
     <div class="page" id="page-ipo">
       <div class="section-title">🚀 Current & Upcoming IPOs</div>
       <div class="grid-3" id="ipo-grid"></div>
-      <div class="section-title">📋 Recently Listed</div>
+      <!-- <div class="section-title">📋 Recently Listed</div> -->
       <div class="card" style="overflow: auto">
         <table class="stock-table">
           <thead>
             <tr>
               <th>COMPANY</th>
-              <th>ISSUE PRICE</th>
-              <th>LISTING PRICE</th>
-              <th>CMP</th>
-              <th>GAIN%</th>
-              <th>GMP</th>
-              <th>RATING</th>
+              <th>CATEGORY</th>
+              <th>IPO PERIOD</th>
             </tr>
           </thead>
-          <tbody>
-            <tr>
-              <td><div class="stock-name">Ola Electric</div></td>
-              <td>₹76</td>
-              <td>₹75.99</td>
-              <td class="up">₹54</td>
-              <td class="down">−28.9%</td>
-              <td class="down">−₹22</td>
-              <td>⚠️ Weak</td>
-            </tr>
-            <tr>
-              <td><div class="stock-name">Hyundai India</div></td>
-              <td>₹1,960</td>
-              <td>₹1,934</td>
-              <td class="up">₹1,810</td>
-              <td class="down">−7.7%</td>
-              <td class="down">−₹150</td>
-              <td>⚠️ Weak</td>
-            </tr>
-            <tr>
-              <td><div class="stock-name">Bajaj Housing Finance</div></td>
-              <td>₹70</td>
-              <td>₹150</td>
-              <td class="up">₹138</td>
-              <td class="up">+97.1%</td>
-              <td class="up">+₹68</td>
-              <td>✅ Strong</td>
-            </tr>
-            <tr>
-              <td><div class="stock-name">Premier Energies</div></td>
-              <td>₹427</td>
-              <td>₹940</td>
-              <td class="up">₹760</td>
-              <td class="up">+78.0%</td>
-              <td class="up">+₹333</td>
-              <td>✅ Strong</td>
-            </tr>
-          </tbody>
+          <tbody id="ipo-listed-body"></tbody>
         </table>
       </div>
     </div>
@@ -1349,49 +1302,6 @@
 -->
     <script>
       // ===== DATA =====
-      const stocksData = [2335];
-
-      const ipoData = [
-        {
-          name: "Hexaware Technologies",
-          sector: "IT Services",
-          status: "open",
-          dates: "12-14 Mar 2025",
-          price: "₹674–708",
-          size: "₹8,750 Cr",
-          gmp: "+₹42",
-          gmppct: "5.9%",
-          gmpup: true,
-          sub: "28.4x",
-          rating: "⭐⭐⭐⭐",
-        },
-        {
-          name: "Ather Energy",
-          sector: "EV Scooters",
-          status: "upcoming",
-          dates: "28-30 Apr 2025",
-          price: "₹304–321",
-          size: "₹3,100 Cr",
-          gmp: "+₹85",
-          gmppct: "26%",
-          gmpup: true,
-          sub: "—",
-          rating: "⭐⭐⭐⭐⭐",
-        },
-        {
-          name: "Indira IVF",
-          sector: "Healthcare",
-          status: "upcoming",
-          dates: "May 2025",
-          price: "TBA",
-          size: "₹1,800 Cr",
-          gmp: "N/A",
-          gmppct: "—",
-          gmpup: false,
-          sub: "—",
-          rating: "⭐⭐⭐",
-        },
-      ];
 
       const commData = [
         {
@@ -1629,91 +1539,124 @@
       updateDashboard();
 
       // auto refresh every 30 seconds
-      setInterval(updateDashboard, 30000);
+      setInterval([updateDashboard, renderStocks], 30000);
 
-  
-const stocks = ["1333", "11536","2885", "3045","759265","1594","10999","16675","15083","11483"]; 
+      const stocks = [
+        "1333",
+        "11536",
+        "2885",
+        "3045",
+        "759265",
+        "1594",
+        "10999",
+        "16675",
+        "15083",
+        "11483",
+      ];
 
-async function renderStocks() {
-  try {
-    const res = await fetch("https://b.jpassociate.co.in/api/prices", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        tokens: stocks
-      })
-    });
+      async function renderStocks() {
+        try {
+          const res = await fetch("https://b.jpassociate.co.in/api/prices", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              tokens: stocks,
+            }),
+          });
 
-    const data = await res.json();
+          const json = await res.json();
 
-    // Example expected format:
-    // data = {
-    //   "2335": { name, price, chg, vol, pe, cap, signal }
-    // }
+          const fetched = json?.data?.fetched || [];
 
-    const rows = stocks.map(token => {
-      const s = data[token];
+          const rows = fetched.map((s) => {
+            const up = s.percentChange >= 0;
 
-      if (!s) return "";
-
-      return `
+            return `
       <tr>
         <td>
-          <div class="stock-name">${s.tradingSymbol || token}</div>
+          <div class="stock-name">${s.tradingSymbol}</div>
+          <span class="sector-tag">${s.exchange}</span>
         </td>
         <td>₹${s.ltp}</td>
-        <td class="${s.percentChange >= 0 ? "up" : "down"}">${s.percentChange}%</td>
-        <td>${s.tradeVolume || "-"}</td>
-       
+        <td class="${up ? "up" : "down"}">
+          ${s.percentChange}% (${s.netChange})
+        </td>
+        <td>${s.tradeVolume}</td>
+        <td>-</td>
+        <td>-</td>
         <td>
-          <span class="signal ${s.signal || "hold"}">
-            ${
-              s.signal === "buy"
-                ? "⬆ BUY"
-                : s.signal === "sell"
-                ? "⬇ SELL"
-                : "◆ HOLD"
-            }
+          <span class="signal hold">
+          --  
           </span>
         </td>
       </tr>`;
-    });
+          });
 
-    document.getElementById("stocks-body").innerHTML = rows.join("");
+          document.getElementById("stocks-body").innerHTML = rows.length
+            ? rows.join("")
+            : "<tr><td colspan='7'>No data</td></tr>";
+        } catch (err) {
+          console.error(err);
+          document.getElementById("stocks-body").innerHTML =
+            "<tr><td colspan='7'>Error loading data</td></tr>";
+        }
+      }
+
+      // call on page load
+
+      async function loadIPO() {
+  try {
+    const res = await fetch("https://b.jpassociate.co.in/ipo");
+    const json = await res.json();
+
+    let list = json?.ipoDropDownList || [];
+
+    // ✅ Sort latest first
+    list.sort((a, b) => new Date(b.orderdate) - new Date(a.orderdate));
+
+    // // =========================
+    // // 🚀 Upcoming IPO (Cards)
+    // // =========================
+    // const upcoming = list.slice(0, 6);
+
+    // const gridHTML = upcoming.map(i => `
+    //   <div class="card">
+    //     <div class="stock-name">${i.ipo_news_title}</div>
+    //     <div>📅 ${i.ipo_period}</div>
+    //     <div>🏷 ${i.issue_category}</div>
+    //   </div>
+    // `).join("");
+
+    // document.getElementById("ipo-grid").innerHTML =
+    //   gridHTML || "<div>No IPO data</div>";
+
+    // =========================
+    // 📋 Listed IPO (Table)
+    // =========================
+    const rows = list.slice(6, 12).map(i => `
+      <tr>
+        <td><div class="stock-name">${i.ipo_news_title}</div></td>
+        <td>${i.issue_category}</td>
+        <td>${i.ipo_period}</td>
+      </tr>
+    `).join("");
+
+    document.getElementById("ipo-listed-body").innerHTML =
+      rows || "<tr><td colspan='3'>No data</td></tr>";
 
   } catch (err) {
     console.error(err);
-    document.getElementById("stocks-body").innerHTML =
-      "<tr><td colspan='7'>Failed to load data</td></tr>";
+
+    document.getElementById("ipo-grid").innerHTML =
+      "<div>Error loading IPO</div>";
+
+    document.getElementById("ipo-listed-body").innerHTML =
+      "<tr><td colspan='3'>Error loading data</td></tr>";
   }
 }
-
-// call on page load
-renderStocks();
-
-      function renderIPO() {
-        document.getElementById("ipo-grid").innerHTML = ipoData
-          .map(
-            (i) => `
-    <div class="ipo-card">
-      <div class="ipo-status ${i.status}">${i.status === "open" ? "🟢 OPEN NOW" : i.status === "upcoming" ? "🟡 UPCOMING" : "🔵 LISTED"}</div>
-      <div class="ipo-name">${i.name}</div>
-      <div class="ipo-meta">${i.sector}</div>
-      <div class="ipo-row"><span class="ipo-key">Date</span><span class="ipo-val">${i.dates}</span></div>
-      <div class="ipo-row"><span class="ipo-key">Price Band</span><span class="ipo-val">${i.price}</span></div>
-      <div class="ipo-row"><span class="ipo-key">Issue Size</span><span class="ipo-val">${i.size}</span></div>
-      <div class="ipo-row" style="margin-top:0.5rem;">
-        <span class="gmp-badge" style="background:${i.gmpup ? "rgba(0,224,122,0.12)" : "rgba(255,76,106,0.12)"};color:${i.gmpup ? "var(--green)" : "var(--red)"};border-color:${i.gmpup ? "rgba(0,224,122,0.3)" : "rgba(255,76,106,0.3)"}">GMP ${i.gmp} <strong>(${i.gmppct})</strong></span>
-        <span style="font-size:0.75rem;color:var(--muted)">Sub: ${i.sub}</span>
-      </div>
-      <div class="ipo-row" style="margin-top:0.4rem;"><span class="ipo-key">Rating</span><span class="ipo-val">${i.rating}</span></div>
-    </div>`,
-          )
-          .join("");
-      }
-
+loadIPO()
       function renderCommodities() {
         const maxVals = commData.map((c) => Math.max(...c.bars));
         document.getElementById("comm-grid").innerHTML = commData
