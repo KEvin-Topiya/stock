@@ -779,7 +779,7 @@ func fetchPrices(jwt string, tokens []string) ([]byte, error) {
 	url := baseURL + "/rest/secure/angelbroking/market/v1/quote/"
 
 	requestData := map[string]interface{}{
-		"mode": "LTP",
+		"mode": "FULL",
 		"exchangeTokens": map[string][]string{
 			"NSE": tokens,
 		},
