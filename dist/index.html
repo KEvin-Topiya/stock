@@ -1244,51 +1244,52 @@ loadGainers();
       </div>
     </div>
     <script>
-      async function sendMsg() {
-        const input = document.getElementById("chat-input");
-        const message = input.value.trim();
-        if (!message) return;
+async function sendMsg() {
+  const input = document.getElementById("chat-input");
+  const message = input.value.trim();
+  if (!message) return;
 
-        addMessage(message, "user");
-        input.value = "";
-        const res = await fetch("https://b.jpassociate.co.in/api/chat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message }),
-        });
+  addMessage(message, "user");
+  input.value = "";
 
-        let data;
+  try {
+    const res = await fetch("https://b.jpassociate.co.in/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message }),
+    });
 
-        try {
-          data = await res.json();
-        } catch (e) {
-          addMessage("Server error. Please try again.", "ai");
-          return;
-        }
+    const text = await res.text(); // raw response
+    let data;
+    try { data = JSON.parse(text); } catch(e) {
+      addMessage("Invalid server response", "ai");
+      console.error("Parse error:", e, "Raw:", text);
+      return;
+    }
 
-        addMessage(data.reply || "No response", "ai");
-      }
+    addMessage(data.reply || "No reply", "ai");
 
-      function sendQuick(text) {
-        document.getElementById("chat-input").value = text;
-        sendMsg();
-      }
+  } catch(err) {
+    console.error("Fetch error:", err);
+    addMessage("Network error", "ai");
+  }
+}
 
-      function addMessage(text, type) {
-        const chat = document.getElementById("chat-messages");
+function sendQuick(text) {
+  document.getElementById("chat-input").value = text;
+  sendMsg();
+}
 
-        const msg = document.createElement("div");
-        msg.className = "msg " + type;
+function addMessage(text, type) {
+  const chat = document.getElementById("chat-messages");
+  const msg = document.createElement("div");
+  msg.className = "msg " + type;
+  msg.innerHTML = `<div class="msg-bubble">${text}</div>`;
+  chat.appendChild(msg);
+  chat.scrollTop = chat.scrollHeight;
+}
+</script>
 
-        msg.innerHTML = `
-    <div class="msg-avatar">${type === "ai" ? "📈" : "🧑"}</div>
-    <div class="msg-bubble">${text}</div>
-  `;
-
-        chat.appendChild(msg);
-        chat.scrollTop = chat.scrollHeight;
-      }
-    </script>
     <!--
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////     
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

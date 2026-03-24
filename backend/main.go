@@ -977,7 +977,7 @@ STRICT RULES:
 
 STOCK RESPONSE FORMAT:
 [Stock Name]:
-Price: ₹XXXX (approx)
+Price: ₹XXXX 
 Trend: Bullish / Bearish / Sideways
 View: Short suggestion (no direct buy/sell)
 
