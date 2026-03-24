@@ -974,17 +974,17 @@ View: Short suggestion (no direct buy/sell)
 `
 
 	resp, err := client.CreateChatCompletion(
-    context.Background(),
-    openai.ChatCompletionRequest{
-        Model:       "gpt-5-mini",
-        MaxTokens:   80,
-        Temperature: 0.2,
-        Messages: []openai.ChatCompletionMessage{
-            {Role: "system", Content: shortPrompt},
-            {Role: "user", Content: req.Message},
-        },
-    },
-)
+		context.Background(),
+		openai.ChatCompletionRequest{
+			Model:       "gpt-5-mini",
+			MaxTokens:   80,
+			Temperature: 0.2,
+			Messages: []openai.ChatCompletionMessage{
+				{Role: "system", Content: systemPrompt},
+				{Role: "user", Content: req.Message},
+			},
+		},
+	)
 
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
