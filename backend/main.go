@@ -20,6 +20,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/joho/godotenv"
 	openai "github.com/sashabaranov/go-openai"
 )
 
@@ -263,7 +264,7 @@ func gmList(w http.ResponseWriter, r *http.Request) {
 // ///////
 func main() {
 
-	// godotenv.Load()
+	godotenv.Load()
 
 	log.Println("Loading Master Contract...")
 	err := loadMasterContract()
@@ -948,81 +949,234 @@ type ChatResponse struct {
 }
 
 func StockChatHandler(w http.ResponseWriter, r *http.Request) {
-	var client = openai.NewClient(os.Getenv("chatKey"))
-	var req ChatRequest
-
-	// ✅ Decode request with error handling
-	err := json.NewDecoder(r.Body).Decode(&req)
-	if err != nil {
-		log.Println("JSON Decode Error:", err)
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
-		return
-	}
-
-	if req.Message == "" {
-		log.Println("Empty message received")
-		http.Error(w, "Message is required", http.StatusBadRequest)
-		return
-	}
-
-	log.Println("User Message:", req.Message)
-
-	systemPrompt := `
-You are an AI chatbot for an Indian stock market website.
-
-STRICT RULES:
-- ONLY answer about Indian stock market
-- If unrelated → reply: "Please ask questions related to Indian stock market."
-- Keep answers SHORT (max 3-4 lines)
-
-STOCK RESPONSE FORMAT:
-[Stock Name]:
-Price: ₹XXXX 
-Trend: Bullish / Bearish / Sideways
-View: Short suggestion (no direct buy/sell)
-
-- If stock name is unclear, still try to guess common Indian stocks (Reliance, TCS, Infosys, etc.)
-- Do NOT mention crypto or global markets
-- This is assumed data, so DO NOT say "live" or "real-time"
-`
-
-	// ✅ API Call
-	resp, err := client.CreateChatCompletion(
-		context.Background(),
-		openai.ChatCompletionRequest{
-			Model:       "gpt-5.4-nano", // ✅ fixed model
-			MaxTokens:   80,
-			Temperature: 0.2,
-			Messages: []openai.ChatCompletionMessage{
-				{Role: "system", Content: systemPrompt},
-				{Role: "user", Content: req.Message},
-			},
-		},
-	)
-
-	// ✅ Proper error logging
-	if err != nil {
-		log.Println("OpenAI API Error:", err)
-
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]string{
-			"reply": "Error: " + err.Error(), // shows real issue
-		})
-		return
-	}
-
-	// ✅ Prevent crash if empty response
-	if len(resp.Choices) == 0 {
-		log.Println("No choices returned from API")
-		http.Error(w, "No response from AI", http.StatusInternalServerError)
-		return
-	}
-
-	reply := resp.Choices[0].Message.Content
-	log.Println("AI Reply:", reply)
-
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(ChatResponse{
-		Reply: reply,
+
+	var req ChatRequest
+	json.NewDecoder(r.Body).Decode(&req)
+	userInput := strings.TrimSpace(req.Message)
+
+	if userInput == "" {
+		json.NewEncoder(w).Encode(ChatResponse{Reply: "Please ask questions related to Indian stock market."})
+		return
+	}
+
+	// 1) Filter user input to find stock name and symbol
+	query := strings.ToLower(userInput)
+
+	queryCleaned := strings.Map(func(r rune) rune {
+		if r >= 'a' && r <= 'z' || r >= '0' && r <= '9' {
+			return r
+		}
+		return ' '
+	}, query)
+	queryWords := strings.Fields(queryCleaned)
+
+	var matchedInst *Instrument
+
+	// Pass 1: Exact / Substring matches
+	for i := range instrumentList {
+		inst := &instrumentList[i]
+		if inst.Exchange != "NSE" {
+			continue // ensure we only match NSE
+		}
+
+		name := strings.ToLower(inst.Name)
+		symbol := strings.ToLower(inst.Symbol)
+
+		// Attempt to match symbol (whole word matching)
+		if len(symbol) > 1 {
+			if symbol == query || strings.Contains(query, " "+symbol+" ") || strings.HasPrefix(query, symbol+" ") || strings.HasSuffix(query, " "+symbol) {
+				matchedInst = inst
+				break
+			}
+		}
+
+		// Attempt to match name
+		if len(name) > 2 {
+			if name == query || strings.Contains(query, name) {
+				matchedInst = inst
+				break
+			}
+			// Clean name like "RELIANCE-EQ" -> "RELIANCE"
+			cleanName := strings.Split(name, "-")[0]
+			if len(cleanName) > 2 && strings.Contains(queryCleaned, cleanName) {
+				matchedInst = inst
+				break
+			}
+			noSpaceName := strings.ReplaceAll(cleanName, " ", "")
+			noSpaceQuery := strings.ReplaceAll(queryCleaned, " ", "")
+			if len(noSpaceName) > 3 && strings.Contains(noSpaceQuery, noSpaceName) {
+				matchedInst = inst
+				break
+			}
+		}
+	}
+
+	// Pass 2: Fuzzy match if exact matches fail
+	if matchedInst == nil {
+		var fuzzyMatch *Instrument
+		bestMatchDist := 999
+
+		for i := range instrumentList {
+			inst := &instrumentList[i]
+			if inst.Exchange != "NSE" {
+				continue
+			}
+
+			name := strings.ToLower(inst.Name)
+			cleanName := strings.Split(name, "-")[0]
+
+			targets := []string{cleanName}
+			words := strings.Fields(cleanName)
+			if len(words) > 1 {
+				targets = append(targets, words[0]) // e.g. "tata"
+			}
+			if len(words) > 0 {
+				targets = append(targets, strings.ReplaceAll(cleanName, " ", "")) // e.g., "hdfcbank"
+			}
+
+			for _, w := range queryWords {
+				if len(w) <= 3 || stopwords[w] {
+					continue
+				}
+				for _, target := range targets {
+					if len(target) < 3 {
+						continue
+					}
+					dist := levenshtein(w, target)
+					allowedDist := 1
+					if len(target) >= 6 {
+						allowedDist = 2
+					}
+					if len(target) >= 9 {
+						allowedDist = 3
+					}
+
+					if dist <= allowedDist && dist < bestMatchDist {
+						bestMatchDist = dist
+						fuzzyMatch = inst
+					}
+				}
+			}
+		}
+		if fuzzyMatch != nil {
+			matchedInst = fuzzyMatch
+		}
+	}
+
+	price := "₹N/A"
+	stockInfo := "Unknown"
+
+	// 2) Find price of the detected stock
+	if matchedInst != nil {
+		stockInfo = fmt.Sprintf("%s (%s)", matchedInst.Name, matchedInst.Symbol)
+		jwt, err := getJWT()
+		if err == nil {
+			priceData, err := fetchPrices(jwt, []string{matchedInst.Token})
+			if err == nil {
+				var quoteResp struct {
+					Status bool                   `json:"status"`
+					Data   map[string]interface{} `json:"data"`
+				}
+				if err := json.Unmarshal(priceData, &quoteResp); err == nil && quoteResp.Status {
+					if fetched, ok := quoteResp.Data["fetched"].([]interface{}); ok && len(fetched) > 0 {
+						if firstItem, ok := fetched[0].(map[string]interface{}); ok {
+							if ltp, ok := firstItem["ltp"].(float64); ok {
+								price = fmt.Sprintf("₹%.2f", ltp)
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	// 3) Create system and user prompts
+	systemPrompt := `You are an AI chatbot for an Indian stock market website.
+Keep answers SHORT (max 3–4 lines).
+You will be provided with the user's input, along with the detected stock and its current live price.
+Format your response as:
+
+[Stock]: (Detected Stock Name)
+Price: (Provided Price)
+Trend: Bullish / Bearish / Sideways
+View: Short suggestion (no direct buy/sell)`
+
+	var chatPrompt string
+	if matchedInst != nil {
+		chatPrompt = fmt.Sprintf("User Input: %s\nDetected Stock: %s\nCurrent Price: %s", userInput, stockInfo, price)
+	} else {
+		chatPrompt = fmt.Sprintf("User Input: %s\nNo specific stock detected in query.", userInput)
+	}
+
+	client := openai.NewClient(os.Getenv("chatKey"))
+	resp, err := client.CreateChatCompletion(context.Background(), openai.ChatCompletionRequest{
+		Model: "gpt-4o-mini",
+		Messages: []openai.ChatCompletionMessage{
+			{Role: "system", Content: systemPrompt},
+			{Role: "user", Content: chatPrompt},
+		},
 	})
+
+	var reply string
+	if err != nil {
+		reply = "Sorry, I am unable to process your request at the moment."
+		log.Println("OpenAI error:", err)
+	} else {
+		reply = resp.Choices[0].Message.Content
+	}
+
+	json.NewEncoder(w).Encode(ChatResponse{Reply: reply})
+}
+
+// Distance matching helper function
+func levenshtein(s1, s2 string) int {
+	if len(s1) == 0 {
+		return len(s2)
+	}
+	if len(s2) == 0 {
+		return len(s1)
+	}
+
+	if len(s1) > len(s2) {
+		s1, s2 = s2, s1
+	}
+
+	v0 := make([]int, len(s1)+1)
+	v1 := make([]int, len(s1)+1)
+
+	for i := 0; i <= len(s1); i++ {
+		v0[i] = i
+	}
+
+	for i := 0; i < len(s2); i++ {
+		v1[0] = i + 1
+		for j := 0; j < len(s1); j++ {
+			cost := 1
+			if s2[i] == s1[j] {
+				cost = 0
+			}
+			min := v0[j+1] + 1
+			if v1[j]+1 < min {
+				min = v1[j] + 1
+			}
+			if v0[j]+cost < min {
+				min = v0[j] + cost
+			}
+			v1[j+1] = min
+		}
+		for j := 0; j <= len(s1); j++ {
+			v0[j] = v1[j]
+		}
+	}
+	return v1[len(s1)]
+}
+
+var stopwords = map[string]bool{
+	"what": true, "when": true, "where": true, "which": true, "who": true, "whom": true, "whose": true, "why": true, "how": true,
+	"is": true, "are": true, "am": true, "was": true, "were": true, "be": true, "been": true, "being": true,
+	"have": true, "has": true, "had": true, "do": true, "does": true, "did": true,
+	"a": true, "an": true, "the": true, "and": true, "but": true, "if": true, "or": true, "because": true, "as": true, "until": true, "while": true,
+	"of": true, "at": true, "by": true, "for": true, "with": true, "about": true, "against": true, "between": true, "into": true, "through": true, "during": true, "before": true, "after": true, "above": true, "below": true, "to": true, "from": true, "up": true, "down": true, "in": true, "out": true, "on": true, "off": true, "over": true, "under": true, "again": true, "further": true, "then": true, "once": true, "here": true, "there": true,
+	"price": true, "share": true, "stock": true, "tell": true, "me": true, "market": true, "today": true, "live": true, "value": true, "rate": true, "company": true, "details": true, "show": true,
 }
