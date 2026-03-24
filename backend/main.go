@@ -20,7 +20,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/joho/godotenv"
 	openai "github.com/sashabaranov/go-openai"
 )
 
@@ -264,7 +263,7 @@ func gmList(w http.ResponseWriter, r *http.Request) {
 // ///////
 func main() {
 
-	godotenv.Load()
+	// godotenv.Load()
 
 	log.Println("Loading Master Contract...")
 	err := loadMasterContract()
