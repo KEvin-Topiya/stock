@@ -8,16 +8,16 @@
       "tradingSymbol": "SAMMAANCAP30MAR26FUT"
     },
     {
-      "ltp": 499.2,
-      "netChange": 29.85,
-      "percentChange": 6.36,
+      "ltp": 499.15,
+      "netChange": 29.8,
+      "percentChange": 6.35,
       "symbolToken": 52004,
       "tradingSymbol": "PGEL30MAR26FUT"
     },
     {
-      "ltp": 681.75,
-      "netChange": 34.9,
-      "percentChange": 5.4,
+      "ltp": 682.35,
+      "netChange": 35.5,
+      "percentChange": 5.49,
       "symbolToken": 52028,
       "tradingSymbol": "SBICARD30MAR26FUT"
     },
@@ -36,55 +36,62 @@
       "tradingSymbol": "TIINDIA30MAR26FUT"
     },
     {
-      "ltp": 4147.9,
-      "netChange": 196.2,
+      "ltp": 3506,
+      "netChange": 165.6,
       "percentChange": 4.96,
-      "symbolToken": 51922,
-      "tradingSymbol": "INDIGO30MAR26FUT"
-    },
-    {
-      "ltp": 785.7,
-      "netChange": 37.15,
-      "percentChange": 4.96,
-      "symbolToken": 52010,
-      "tradingSymbol": "PNBHOUSING30MAR26FUT"
-    },
-    {
-      "ltp": 3504.7,
-      "netChange": 164.3,
-      "percentChange": 4.92,
       "symbolToken": 51966,
       "tradingSymbol": "LT30MAR26FUT"
     },
     {
-      "ltp": 334.35,
-      "netChange": 15.45,
-      "percentChange": 4.84,
+      "ltp": 785.3,
+      "netChange": 36.75,
+      "percentChange": 4.91,
+      "symbolToken": 52010,
+      "tradingSymbol": "PNBHOUSING30MAR26FUT"
+    },
+    {
+      "ltp": 4145,
+      "netChange": 193.3,
+      "percentChange": 4.89,
+      "symbolToken": 51922,
+      "tradingSymbol": "INDIGO30MAR26FUT"
+    },
+    {
+      "ltp": 334.3,
+      "netChange": 15.4,
+      "percentChange": 4.83,
       "symbolToken": 51901,
       "tradingSymbol": "HINDPETRO30MAR26FUT"
     },
     {
-      "ltp": 5304.5,
-      "netChange": 233,
-      "percentChange": 4.59,
+      "ltp": 5308,
+      "netChange": 236.5,
+      "percentChange": 4.66,
       "symbolToken": 51899,
       "tradingSymbol": "HEROMOTOCO30MAR26FUT"
     }
   ],
   "losers": [
     {
-      "ltp": 987.9,
-      "netChange": -0.3,
-      "percentChange": -0.03,
-      "symbolToken": 51722,
-      "tradingSymbol": "360ONE30MAR26FUT"
-    },
-    {
       "ltp": 386.35,
       "netChange": -0.15,
       "percentChange": -0.04,
       "symbolToken": 52051,
       "tradingSymbol": "TATAPOWER30MAR26FUT"
+    },
+    {
+      "ltp": 2081.9,
+      "netChange": -1.5,
+      "percentChange": -0.07,
+      "symbolToken": 51880,
+      "tradingSymbol": "GLENMARK30MAR26FUT"
+    },
+    {
+      "ltp": 252.25,
+      "netChange": -0.2,
+      "percentChange": -0.08,
+      "symbolToken": 51972,
+      "tradingSymbol": "MANAPPURAM30MAR26FUT"
     },
     {
       "ltp": 1248.2,
@@ -94,16 +101,16 @@
       "tradingSymbol": "DRREDDY30MAR26FUT"
     },
     {
-      "ltp": 298.7,
-      "netChange": -2.3,
-      "percentChange": -0.76,
+      "ltp": 298.65,
+      "netChange": -2.35,
+      "percentChange": -0.78,
       "symbolToken": 52013,
       "tradingSymbol": "POWERGRID30MAR26FUT"
     },
     {
-      "ltp": 440.95,
-      "netChange": -13.65,
-      "percentChange": -3,
+      "ltp": 441.4,
+      "netChange": -13.2,
+      "percentChange": -2.9,
       "symbolToken": 51848,
       "tradingSymbol": "COALINDIA30MAR26FUT"
     }
