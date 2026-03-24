@@ -20,6 +20,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/joho/godotenv"
 	openai "github.com/sashabaranov/go-openai"
 )
 
@@ -263,7 +264,7 @@ func gmList(w http.ResponseWriter, r *http.Request) {
 // ///////
 func main() {
 
-	// godotenv.Load()
+	godotenv.Load()
 
 	log.Println("Loading Master Contract...")
 	err := loadMasterContract()
@@ -939,7 +940,6 @@ func getMacAddress() string {
 
 // //////////
 // //chatgpt////////
-
 type ChatRequest struct {
 	Message string `json:"message"`
 }
@@ -948,11 +948,25 @@ type ChatResponse struct {
 	Reply string `json:"reply"`
 }
 
-var client = openai.NewClient(os.Getenv("chatKey"))
-
 func StockChatHandler(w http.ResponseWriter, r *http.Request) {
+	var client = openai.NewClient(os.Getenv("chatKey"))
 	var req ChatRequest
-	json.NewDecoder(r.Body).Decode(&req)
+
+	// ✅ Decode request with error handling
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		log.Println("JSON Decode Error:", err)
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	if req.Message == "" {
+		log.Println("Empty message received")
+		http.Error(w, "Message is required", http.StatusBadRequest)
+		return
+	}
+
+	log.Println("User Message:", req.Message)
 
 	systemPrompt := `
 You are an AI chatbot for an Indian stock market website.
@@ -973,10 +987,11 @@ View: Short suggestion (no direct buy/sell)
 - This is assumed data, so DO NOT say "live" or "real-time"
 `
 
+	// ✅ API Call
 	resp, err := client.CreateChatCompletion(
 		context.Background(),
 		openai.ChatCompletionRequest{
-			Model:       "gpt-5.4-nano",
+			Model:       "gpt-4o-mini", // ✅ fixed model
 			MaxTokens:   80,
 			Temperature: 0.2,
 			Messages: []openai.ChatCompletionMessage{
@@ -986,16 +1001,28 @@ View: Short suggestion (no direct buy/sell)
 		},
 	)
 
+	// ✅ Proper error logging
 	if err != nil {
+		log.Println("OpenAI API Error:", err)
+
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(map[string]string{
-			"reply": "Something went wrong. Please try again.",
+			"reply": "Error: " + err.Error(), // shows real issue
 		})
 		return
 	}
 
-	reply := resp.Choices[0].Message.Content
+	// ✅ Prevent crash if empty response
+	if len(resp.Choices) == 0 {
+		log.Println("No choices returned from API")
+		http.Error(w, "No response from AI", http.StatusInternalServerError)
+		return
+	}
 
+	reply := resp.Choices[0].Message.Content
+	log.Println("AI Reply:", reply)
+
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(ChatResponse{
 		Reply: reply,
 	})

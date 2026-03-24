@@ -1,90 +1,146 @@
 {
   "gainers": [
     {
-      "ltp": 269,
-      "netChange": 3.4,
-      "percentChange": 1.28,
-      "symbolToken": 51997,
-      "tradingSymbol": "ONGC30MAR26FUT"
+      "ltp": 2588.2,
+      "netChange": 123.3,
+      "percentChange": 5,
+      "symbolToken": 52056,
+      "tradingSymbol": "TIINDIA30MAR26FUT"
     },
     {
-      "ltp": 474.55,
-      "netChange": 2.9,
-      "percentChange": 0.61,
-      "symbolToken": 51996,
-      "tradingSymbol": "OIL30MAR26FUT"
-    }
-  ],
-  "losers": [
+      "ltp": 258.2,
+      "netChange": 10.1,
+      "percentChange": 4.11,
+      "symbolToken": 52024,
+      "tradingSymbol": "RVNL30MAR26FUT"
+    },
     {
-      "ltp": 511,
-      "netChange": -27.35,
-      "percentChange": -5.08,
+      "ltp": 1172.5,
+      "netChange": 46.2,
+      "percentChange": 4.1,
+      "symbolToken": 51838,
+      "tradingSymbol": "CDSL30MAR26FUT"
+    },
+    {
+      "ltp": 4106.6,
+      "netChange": 154.9,
+      "percentChange": 3.92,
+      "symbolToken": 51922,
+      "tradingSymbol": "INDIGO30MAR26FUT"
+    },
+    {
+      "ltp": 905.9,
+      "netChange": 33.85,
+      "percentChange": 3.88,
+      "symbolToken": 51954,
+      "tradingSymbol": "KFINTECH30MAR26FUT"
+    },
+    {
+      "ltp": 671.45,
+      "netChange": 24.6,
+      "percentChange": 3.8,
+      "symbolToken": 52028,
+      "tradingSymbol": "SBICARD30MAR26FUT"
+    },
+    {
+      "ltp": 7396,
+      "netChange": 253,
+      "percentChange": 3.54,
+      "symbolToken": 51756,
+      "tradingSymbol": "APOLLOHOSP30MAR26FUT"
+    },
+    {
+      "ltp": 485.5,
+      "netChange": 16.15,
+      "percentChange": 3.44,
       "symbolToken": 52004,
       "tradingSymbol": "PGEL30MAR26FUT"
     },
     {
-      "ltp": 837,
-      "netChange": -45.1,
-      "percentChange": -5.11,
-      "symbolToken": 51819,
-      "tradingSymbol": "BAJFINANCE30MAR26FUT"
+      "ltp": 4824.1,
+      "netChange": 158.6,
+      "percentChange": 3.4,
+      "symbolToken": 52001,
+      "tradingSymbol": "PERSISTENT30MAR26FUT"
     },
     {
-      "ltp": 169.55,
-      "netChange": -9.19,
-      "percentChange": -5.14,
-      "symbolToken": 51757,
-      "tradingSymbol": "ASHOKLEY30MAR26FUT"
+      "ltp": 862,
+      "netChange": 27.1,
+      "percentChange": 3.25,
+      "symbolToken": 51920,
+      "tradingSymbol": "INDIANB30MAR26FUT"
+    }
+  ],
+  "losers": [
+    {
+      "ltp": 147.91,
+      "netChange": -0.08,
+      "percentChange": -0.05,
+      "symbolToken": 51820,
+      "tradingSymbol": "BANDHANBNK30MAR26FUT"
     },
     {
-      "ltp": 10160,
-      "netChange": -554,
-      "percentChange": -5.17,
-      "symbolToken": 51866,
-      "tradingSymbol": "DIXON30MAR26FUT"
+      "ltp": 530.15,
+      "netChange": -0.3,
+      "percentChange": -0.06,
+      "symbolToken": 51912,
+      "tradingSymbol": "ICICIPRULI30MAR26FUT"
     },
     {
-      "ltp": 135.89,
-      "netChange": -7.56,
-      "percentChange": -5.27,
-      "symbolToken": 52015,
-      "tradingSymbol": "PPLPHARMA30MAR26FUT"
+      "ltp": 252.2,
+      "netChange": -0.25,
+      "percentChange": -0.1,
+      "symbolToken": 51972,
+      "tradingSymbol": "MANAPPURAM30MAR26FUT"
     },
     {
-      "ltp": 1252,
-      "netChange": -70.3,
-      "percentChange": -5.32,
-      "symbolToken": 51823,
-      "tradingSymbol": "BDL30MAR26FUT"
-    },
-    {
-      "ltp": 83.39,
-      "netChange": -4.98,
-      "percentChange": -5.64,
-      "symbolToken": 51985,
-      "tradingSymbol": "NBCC30MAR26FUT"
-    },
-    {
-      "ltp": 286.85,
-      "netChange": -17.5,
-      "percentChange": -5.75,
-      "symbolToken": 51831,
-      "tradingSymbol": "BPCL30MAR26FUT"
-    },
-    {
-      "ltp": 327.8,
-      "netChange": -22.45,
-      "percentChange": -6.41,
-      "symbolToken": 51901,
-      "tradingSymbol": "HINDPETRO30MAR26FUT"
-    },
-    {
-      "ltp": 271.6,
-      "netChange": -20.1,
-      "percentChange": -6.89,
+      "ltp": 237.3,
+      "netChange": -0.55,
+      "percentChange": -0.23,
       "symbolToken": 52002,
       "tradingSymbol": "PETRONET30MAR26FUT"
+    },
+    {
+      "ltp": 5470.5,
+      "netChange": -13,
+      "percentChange": -0.24,
+      "symbolToken": 51832,
+      "tradingSymbol": "BRITANNIA30MAR26FUT"
+    },
+    {
+      "ltp": 1824.3,
+      "netChange": -8.5,
+      "percentChange": -0.46,
+      "symbolToken": 52029,
+      "tradingSymbol": "SBILIFE30MAR26FUT"
+    },
+    {
+      "ltp": 3077,
+      "netChange": -19,
+      "percentChange": -0.61,
+      "symbolToken": 51982,
+      "tradingSymbol": "MUTHOOTFIN30MAR26FUT"
+    },
+    {
+      "ltp": 1269.5,
+      "netChange": -8.5,
+      "percentChange": -0.67,
+      "symbolToken": 51796,
+      "tradingSymbol": "AUROPHARMA30MAR26FUT"
+    },
+    {
+      "ltp": 297.6,
+      "netChange": -3.4,
+      "percentChange": -1.13,
+      "symbolToken": 52013,
+      "tradingSymbol": "POWERGRID30MAR26FUT"
+    },
+    {
+      "ltp": 444.25,
+      "netChange": -10.35,
+      "percentChange": -2.28,
+      "symbolToken": 51848,
+      "tradingSymbol": "COALINDIA30MAR26FUT"
     }
   ]
 }
