@@ -976,7 +976,7 @@ View: Short suggestion (no direct buy/sell)
 	resp, err := client.CreateChatCompletion(
 		context.Background(),
 		openai.ChatCompletionRequest{
-			Model:       "gpt-5-mini",
+			Model:       "gpt-5.4-nano",
 			MaxTokens:   80,
 			Temperature: 0.2,
 			Messages: []openai.ChatCompletionMessage{
